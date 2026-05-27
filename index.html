@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>做过确认 — 项目文档中心</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242836;
+    --border: #2e3348;
+    --text: #e4e6f0;
+    --text2: #8b8fa8;
+    --accent: #6c8cff;
+    --accent2: #4a6bff;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "SF Pro Text", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  .header { padding: 32px 24px 24px; border-bottom: 1px solid var(--border); }
+  .header h1 { font-size: 24px; font-weight: 700; }
+  .header h1 span { color: var(--accent); }
+  .header p { color: var(--text2); margin-top: 6px; font-size: 14px; }
+
+  .nav { display: flex; gap: 4px; padding: 16px 24px 0; }
+  .nav button { background: transparent; border: none; color: var(--text2); font-size: 14px; padding: 8px 16px; cursor: pointer; border-radius: 8px 8px 0 0; transition: all .15s; }
+  .nav button:hover { color: var(--text); background: var(--surface); }
+  .nav button.active { color: var(--accent); background: var(--surface); }
+
+  .content { padding: 20px 24px 40px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Stage overview */
+  .pipeline { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stage { flex: 1; min-width: 120px; padding: 14px 12px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border); text-align: center; font-size: 13px; }
+  .stage .num { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  .stage .label { font-weight: 600; }
+  .stage.done { border-color: var(--green); }
+  .stage.done .label { color: var(--green); }
+  .stage.current { border-color: var(--accent); background: linear-gradient(135deg, var(--surface), rgba(108,140,255,.08)); }
+  .stage.current .label { color: var(--accent); }
+  .stage.todo { opacity: .5; }
+
+  /* Doc cards */
+  .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .doc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: all .15s; }
+  .doc-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .doc-card .title { font-weight: 600; font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .doc-card .desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .doc-card .meta { margin-top: 10px; display: flex; gap: 8px; align-items: center; font-size: 11px; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge.active { background: rgba(74,222,128,.15); color: var(--green); }
+  .badge.pending { background: rgba(251,191,36,.15); color: var(--yellow); }
+  .badge.draft { background: rgba(139,143,168,.15); color: var(--text2); }
+  .badge.archived { background: rgba(139,143,168,.1); color: var(--text2); }
+  .badge.risk-low { background: rgba(74,222,128,.1); color: var(--green); }
+  .badge.risk-med { background: rgba(251,191,36,.15); color: var(--yellow); }
+  .badge.risk-high { background: rgba(248,113,113,.15); color: var(--red); }
+
+  /* Detail panel */
+  .detail-view { display: none; }
+  .detail-view.active { display: block; }
+  .back-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; margin-bottom: 16px; }
+  .back-btn:hover { border-color: var(--accent); }
+  .detail-content { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; max-height: 70vh; overflow-y: auto; }
+  .detail-content h1 { font-size: 20px; margin-bottom: 16px; }
+  .detail-content h2 { font-size: 16px; margin: 20px 0 10px; color: var(--accent); }
+  .detail-content h3 { font-size: 14px; margin: 14px 0 6px; }
+  .detail-content p { font-size: 13px; color: var(--text2); margin: 6px 0; }
+  .detail-content ul { padding-left: 20px; font-size: 13px; color: var(--text2); }
+  .detail-content li { margin: 4px 0; }
+  .detail-content table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  .detail-content th, .detail-content td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+  .detail-content th { background: var(--surface2); color: var(--text); font-weight: 600; }
+  .detail-content td { color: var(--text2); }
+  .detail-content code { background: var(--surface2); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  .detail-content pre { background: var(--surface2); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; margin: 8px 0; }
+  .detail-content strong { color: var(--text); }
+  .detail-content blockquote { border-left: 3px solid var(--accent); padding-left: 12px; margin: 8px 0; color: var(--text2); font-style: italic; }
+
+  /* Key decisions */
+  .decision { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+  .decision .q { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .decision .a { font-size: 12px; color: var(--text2); }
+
+  /* Risk matrix */
+  .risk-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .risk-item:last-child { border-bottom: none; }
+  .risk-item .name { font-size: 13px; font-weight: 600; min-width: 140px; }
+  .risk-item .mitigation { font-size: 12px; color: var(--text2); flex: 1; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .doc-grid { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .stage { min-width: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>做过确认 <span>· 项目文档中心</span></h1>
+  <p>"Did I?" 确认工具 — 1秒确认，安心走人</p>
+</div>
+
+<div class="nav">
+  <button class="active" onclick="showPanel('overview')">总览</button>
+  <button onclick="showPanel('stage1')">Stage 1 调研</button>
+  <button onclick="showPanel('decisions')">关键决策</button>
+  <button onclick="showPanel('risks')">风险矩阵</button>
+</div>
+
+<div class="content">
+
+  <!-- Overview Panel -->
+  <div id="panel-overview" class="panel active">
+    <div class="pipeline">
+      <div class="stage done"><div class="num">Stage 1</div><div class="label">市场调研</div></div>
+      <div class="stage current"><div class="num">Stage 2</div><div class="label">产品定义</div></div>
+      <div class="stage todo"><div class="num">Stage 3</div><div class="label">设计</div></div>
+      <div class="stage todo"><div class="num">Stage 4</div><div class="label">架构规划</div></div>
+      <div class="stage todo"><div class="num">Stage 5</div><div class="label">原型开发</div></div>
+    </div>
+
+    <div class="doc-grid">
+      <div class="doc-card" onclick="showDoc('market')">
+        <div class="title">📊 市场竞品分析</div>
+        <div class="desc">12款直接竞品、中国市场空白、用户规模估算、平台能力对比、三阶段路线图</div>
+        <div class="meta"><span class="badge active">活跃</span><span>01-research/</span></div>
+      </div>
+      <div class="doc-card" onclick="showDoc('devil')">
+        <div class="title">😈 反方论证</div>
+        <div class="desc">6大质疑：需求频次不足、替代方案多、扩展失焦、AI整理伪需求、付费天花板、小程序体验受限</div>
+        <div class="meta"><span class="badge active">活跃</span><span>01-research/</span></div>
+      </div>
+      <div class="doc-card" onclick="showDoc('docmap')">
+        <div class="title">🗺️ 文档关系图</div>
+        <div class="desc">文档依赖关系、变更影响链、引用规则</div>
+        <div class="meta"><span class="badge active">活跃</span><span>docs/</span></div>
+      </div>
+      <div class="doc-card" style="opacity:.4">
+        <div class="title">📋 产品定位 PRD</div>
+        <div class="desc">待创建 — Stage 2 产出</div>
+        <div class="meta"><span class="badge draft">待创建</span><span>02-product/</span></div>
+      </div>
+      <div class="doc-card" style="opacity:.4">
+        <div class="title">📐 产品规格书</div>
+        <div class="desc">待创建 — Stage 2 产出</div>
+        <div class="meta"><span class="badge draft">待创建</span><span>02-product/</span></div>
+      </div>
+      <div class="doc-card" style="opacity:.4">
+        <div class="title">🛠️ MVP Blueprint</div>
+        <div class="desc">待创建 — Stage 4 产出</div>
+        <div class="meta"><span class="badge draft">待创建</span><span>04-plan/</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 1 Panel -->
+  <div id="panel-stage1" class="panel">
+    <div class="doc-grid">
+      <div class="doc-card" onclick="showDoc('market')">
+        <div class="title">📊 市场竞品分析报告</div>
+        <div class="desc">完整竞品矩阵、用户规模、市场数据、平台能力分析、三阶段建议</div>
+        <div class="meta"><span class="badge active">活跃</span></div>
+      </div>
+      <div class="doc-card" onclick="showDoc('devil')">
+        <div class="title">😈 反方论证分析</div>
+        <div class="desc">6大质疑逐一论证，总体风险评级，MVP必须回答的4个问题</div>
+        <div class="meta"><span class="badge active">活跃</span></div>
+      </div>
+    </div>
+
+    <h3 style="margin:24px 0 12px;font-size:15px;">Stage 1 关键发现摘要</h3>
+    <div class="decision">
+      <div class="q">✅ 中国市场没有"做过确认"类 App</div>
+      <div class="a">12款直接竞品全部来自海外（美/欧/日），中国市场仅有吃药提醒的垂直场景</div>
+    </div>
+    <div class="decision">
+      <div class="q">✅ 品类刚兴起，没有大厂壁垒</div>
+      <div class="a">竞品基本都是 2025-2026 年上架的小团队/个人开发者产品</div>
+    </div>
+    <div class="decision">
+      <div class="q">⚠️ 痛点真实但频次有限</div>
+      <div class="a">核心付费人群（OCD/ADHD）仅 2-4%，亚临床人群 13.6% 是更大机会</div>
+    </div>
+    <div class="decision">
+      <div class="q">⚠️ 小程序做不到锁屏 Widget</div>
+      <div class="a">iOS 完全不可能，Android 可用桌面快捷方式部分弥补。核心体验需原生 App 兑现</div>
+    </div>
+  </div>
+
+  <!-- Decisions Panel -->
+  <div id="panel-decisions" class="panel">
+    <h3 style="font-size:15px;margin-bottom:16px;">已确认的关键决策</h3>
+
+    <div class="decision">
+      <div class="q">产品核心定位是什么？</div>
+      <div class="a">"Did I?" 确认工具，不是待办提醒。核心价值：1秒确认，安心走人。中期扩展到即时捕获+AI整理，但锚点始终是"确认最快"</div>
+    </div>
+    <div class="decision">
+      <div class="q">MVP 用什么平台？</div>
+      <div class="a">微信小程序。获客成本低，社交传播方便。接受锁屏能力缺失，目标只验证需求是否存在</div>
+    </div>
+    <div class="decision">
+      <div class="q">MVP 验证标准？</div>
+      <div class="a">7日留存 > 30%。不需要验证体验完美，只需验证"确认做过"这个需求成立</div>
+    </div>
+    <div class="decision">
+      <div class="q">中期扩展方向？</div>
+      <div class="a">即时捕获（拍照+语音口喷）→ AI 自动整理。从"确认"延伸，不是换赛道做速记</div>
+    </div>
+    <div class="decision">
+      <div class="q">不做日记/手账</div>
+      <div class="a">日记/手账是坐下来写的场景，和"站着随手记"完全不同。会稀释定位，变成红海竞品</div>
+    </div>
+
+    <h3 style="font-size:15px;margin:24px 0 12px;">待决策</h3>
+    <div class="decision" style="border-color:var(--yellow)">
+      <div class="q">🟡 产品命名</div>
+      <div class="a">暂用"做过确认"，需要在 PRD 阶段确定正式名称</div>
+    </div>
+    <div class="decision" style="border-color:var(--yellow)">
+      <div class="q">🟡 MVP 是否包含拍照确认</div>
+      <div class="a">竞品验证拍照使用率 > 40%，但增加小程序复杂度。待 PRD 阶段决定</div>
+    </div>
+    <div class="decision" style="border-color:var(--yellow)">
+      <div class="q">🟡 MVP 是否包含语音速记</div>
+      <div class="a">反方论证认为使用率可能 < 15%，但它是中期扩展的验证入口。待 PRD 阶段决定</div>
+    </div>
+  </div>
+
+  <!-- Risks Panel -->
+  <div id="panel-risks" class="panel">
+    <h3 style="font-size:15px;margin-bottom:16px;">风险矩阵</h3>
+
+    <div class="risk-item">
+      <div class="name">需求频次不足</div>
+      <span class="badge risk-med">🟡 中</span>
+      <div class="mitigation">MVP 验证 7 日留存 > 30%；聚焦 OCD/ADHD 核心人群</div>
+    </div>
+    <div class="risk-item">
+      <div class="name">替代方案太多</div>
+      <span class="badge risk-low">🟢 低</span>
+      <div class="mitigation">做到比"微信发自己"更快，结构化记录可检索</div>
+    </div>
+    <div class="risk-item">
+      <div class="name">扩展后失去焦点</div>
+      <span class="badge risk-med">🟡 中</span>
+      <div class="mitigation">锚点始终是"确认最快"，扩展以"确认"为核心延伸</div>
+    </div>
+    <div class="risk-item">
+      <div class="name">AI 整理伪需求</div>
+      <span class="badge risk-med">🟡 中</span>
+      <div class="mitigation">中期再做，先验证核心确认场景留存</div>
+    </div>
+    <div class="risk-item">
+      <div class="name">付费天花板低</div>
+      <span class="badge risk-med">🟡 中</span>
+      <div class="mitigation">MVP 不设付费，探索家庭共享场景（子女为父母付费）</div>
+    </div>
+    <div class="risk-item">
+      <div class="name">小程序体验受限</div>
+      <span class="badge risk-med">🟡 中</span>
+      <div class="mitigation">Android 桌面快捷方式 + 微信下拉缩短路径；Phase 2 转原生</div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail View (hidden by default) -->
+<div id="detail-view" class="detail-view" style="padding:20px 24px;">
+  <button class="back-btn" onclick="hideDoc()">← 返回</button>
+  <div class="detail-content" id="detail-content"></div>
+</div>
+
+<script>
+const docs = {
+  market: { title: '市场竞品分析报告', file: 'docs/01-research/market-competitive-analysis.md' },
+  devil: { title: '反方论证分析', file: 'docs/01-research/devil-advocate-analysis.md' },
+  docmap: { title: '文档关系图', file: 'docs/document-map.md' }
+};
+
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+  document.getElementById('detail-view').classList.remove('active');
+  document.querySelector('.content').style.display = '';
+}
+
+function showDoc(id) {
+  const doc = docs[id];
+  if (!doc) return;
+  fetch(doc.file)
+    .then(r => r.text())
+    .then(md => {
+      document.getElementById('detail-content').innerHTML = '<h1>' + doc.title + '</h1>' + renderMd(md);
+      document.querySelector('.content').style.display = 'none';
+      document.getElementById('detail-view').classList.add('active');
+    })
+    .catch(() => {
+      document.getElementById('detail-content').innerHTML = '<h1>' + doc.title + '</h1><p style="color:var(--red)">文件加载失败</p>';
+      document.querySelector('.content').style.display = 'none';
+      document.getElementById('detail-view').classList.add('active');
+    });
+}
+
+function hideDoc() {
+  document.getElementById('detail-view').classList.remove('active');
+  document.querySelector('.content').style.display = '';
+}
+
+function renderMd(md) {
+  let html = md
+    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+    .replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:16px 0">');
+
+  // Tables
+  html = html.replace(/(\|.+\|[\r\n]+\|[-| :]+\|[\r\n]+((\|.+\|[\r\n]*)+))/gm, function(match) {
+    const rows = match.trim().split('\n').filter(r => r.trim() && !r.match(/^[\s|:-]+$/));
+    if (rows.length < 2) return match;
+    let table = '<table>';
+    rows.forEach((row, i) => {
+      const cells = row.split('|').filter(c => c.trim() !== '');
+      const tag = i === 0 ? 'th' : 'td';
+      table += '<tr>' + cells.map(c => '<' + tag + '>' + c.trim() + '</' + tag + '>').join('') + '</tr>';
+    });
+    table += '</table>';
+    return table;
+  });
+
+  // Lists
+  html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>[\n]*)+/g, '<ul>$&</ul>');
+
+  // Paragraphs for remaining lines
+  html = html.replace(/^(?!<[hultob]|<hr|<li|<block|<table|<tr|<td|<th)(.*$)/gm, function(m, p1) {
+    return p1.trim() ? '<p>' + p1 + '</p>' : '';
+  });
+
+  return html;
+}
+</script>
+
+</body>
+</html>

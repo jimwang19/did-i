@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx skills *)",
+      "mcp__plugin_ecc_exa__web_search_exa",
+      "Bash(git init *)",
+      "Bash(mkdir -p docs/01-research docs/02-product docs/03-design docs/04-plan)",
+      "Bash(python -m http.server 58999)",
+      "mcp__plugin_ecc_playwright__browser_navigate",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}

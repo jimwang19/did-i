@@ -1,0 +1,116 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## 交流语言
+
+使用中文交流。
+
+## Project Overview
+
+做过确认 — 备忘提醒小工具，解决"我刚才锁门了没？吃药了没？"的反复确认焦虑。
+
+当前状态：**市场调研完成，MVP 规划阶段**。
+
+## 产品核心概念
+
+这不是"待办提醒"工具，而是 **"Did I?" 确认工具**：
+- 用户做完一件事后，快速记录"已做"+ 时间戳（可选拍照证明）
+- 事后焦虑时查看记录，获得"我做过了"的安心感
+- 核心场景：锁门、关火、吃药、喂宠物等日常确认
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `docs/02-product/product-spec.md` | 产品功能规格书，所有功能定义和交付标准的唯一来源 |
+| `docs/01-research/market-competitive-analysis.md` | 市场竞品分析报告 |
+
+## 文档结构
+
+```
+docs/
+├── 01-research/          # 市场调研 & 竞品分析
+├── 02-product/           # 产品定义 & PRD & 规格书
+├── 03-design/            # 设计方向 & UI规范
+├── 04-plan/              # 开发计划 & Blueprint
+├── activity-log.md       # 开发活动日志
+└── document-map.md       # 文档关系图
+```
+
+## 开发阶段流程
+
+```
+市场调研          产品定义             设计              开发规划           原型开发
+(Stage 1)        (Stage 2)          (Stage 3)         (Stage 4)         (Stage 5)
+    │                │                  │                  │                  │
+    ▼                ▼                  ▼                  ▼                  ▼
+ 竞品分析 ──→ 产品PRD ──→ 交互设计 ──→ Blueprint ──→ MVP原型
+              │    │         │                              │
+              │    └──→ 产品规格书 ──→ UI规格              │
+              │         │         └──→ 视觉风格指南 ───────┘
+              │         │
+              │    反方论证(归档)
+              │
+              └──→ 开发流程技能映射
+```
+
+### 阶段技能映射
+
+| 阶段 | 技能 | 产出 |
+|------|------|------|
+| 1. 市场调研 | `ecc:market-research`, `ecc:deep-research`, `ecc:exa-search` | `market-competitive-analysis.md` |
+| 2. 产品定义 | `ecc:plan-prd`, `ecc:product-lens`, `ecc:blueprint` | PRD、产品规格书 |
+| 3. 设计方向 | `ecc:frontend-design-direction`, `ecc:design-system`, `ecc:accessibility` | 交互设计、UI规范、视觉风格指南 |
+| 4. 架构规划 | `ecc:plan`, `ecc:architect`, `ecc:architecture-decision-records` | 开发计划、架构决策记录 |
+| 5. 功能开发 | `ecc:feature-dev`, `ecc:prp-plan`/`ecc:prp-implement`, `ecc:evolve` | 可运行原型 |
+| 6. 质量保障 | `ecc:code-review`, `ecc:security-review`, `ecc:quality-gate` | 发布就绪 |
+| 7. 发布运营 | `ecc:pr`, `ecc:continuous-learning` | 上线 |
+
+## Coding Guidelines
+
+- **修改前先看规格书**: `docs/02-product/product-spec.md` 是功能定义的唯一来源，新增功能先更新规格再写代码
+- **MVP 最简原则**: 能用就行，不做过度设计
+- **代码风格**: 匹配项目现有风格，不擅自引入新规范
+
+## 分支策略与 Worktree
+
+功能开发使用 feature 分支 + worktree 隔离：
+
+| 分支 | 方向 |
+|------|------|
+| `main` | 稳定版本 |
+| `feat/mvp-miniprogram` | 微信小程序 MVP |
+| `feat/mvp-native` | 原生 App（后续阶段） |
+
+## 验收基准
+
+- In Review / Done 状态变更前，必须在对应平台实际运行验证
+- MVP 验证指标：7日留存率 > 30% 则需求成立
+
+## Testing
+
+**原则：每次改完代码必须在目标平台运行验证，再改状态为 In Review。**
+
+### 小程序测试
+- 微信开发者工具预览
+- 真机扫码验证
+- 操作流程：打开 → 点确认 → 查看记录 → 拍照确认
+
+## 文档变更影响链
+
+修改某文档时，需同步检查的下游文档：
+
+| 修改此文档 | 必须检查 | 可能影响 |
+|-----------|---------|---------|
+| 竞品分析 | PRD | 规格书、设计文档 |
+| PRD | 规格书、Blueprint | 交互设计、UI规格 |
+| 规格书 | 交互设计、UI规格 | Blueprint、原型 |
+| Blueprint | 原型 | — |
+
+## 引用规则
+
+1. **上游变更必须通知下游**：修改PRD时，检查规格书和Blueprint是否需要同步
+2. **规格书是功能唯一来源**：CLAUDE.md 规定"修改前先看规格书"
+3. **归档文档不再维护**：反方论证的结论已转化，文档仅供回溯
+4. **路径约定**：文档间引用使用相对路径
