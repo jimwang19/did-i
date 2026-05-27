@@ -1242,7 +1242,7 @@ body::before {
 
         <div class="filter-bar">
           <div class="filter-chip active" onclick="toggleFilter()">
-            <span class="filter-icon">●</span> 隐藏已确认
+            <span class="filter-icon">●</span><span class="filter-label"> 隐藏已确认</span>
           </div>
           <div class="filter-right">
             <div class="filter-count" id="pending-count">2 项待确认</div>
@@ -1828,7 +1828,7 @@ function toggleConfirm(el, method) {
 }
 
 // ═══ Sort Confirm List ═══
-// 已确认的按时间倒序排列（最新的在最上面），未确认的保持原顺序排在后面
+// 未确认的排最上面，已确认的按时间倒序排列（最新的在最上面）
 function sortConfirmList() {
   const panel = document.getElementById('confirm-list');
   const addItem = panel.querySelector('.add-item');
@@ -1851,11 +1851,9 @@ function sortConfirmList() {
 
   // Re-insert: pending first, then confirmed (newest on top of confirmed group)
   const sorted = pending.concat(confirmed);
-  sorted.forEach(function(item, idx) {
+  sorted.forEach(function(item) {
     panel.insertBefore(item, addItem);
   });
-
-  // If all items were pending, nothing changed
 }
 
 // ═══ Bottom Sheet ═══
@@ -1869,6 +1867,8 @@ function openSheet() {
   const name = nameEl.textContent.replace(/#\d+/,'').trim();
   document.getElementById('sheet-title').textContent = '确认「' + name + '」';
   document.getElementById('sheet-sub').textContent = selectedEntry ? '已选中的事项' : '默认第一条待确认';
+  // Clear previous selection highlight
+  document.querySelectorAll('.confirm-item.selected').forEach(function(el) { el.classList.remove('selected'); });
   target.classList.add('selected');
   selectedEntry = target;
   document.getElementById('sheet-overlay').classList.add('active');
@@ -1882,9 +1882,10 @@ function closeSheet(e) {
 
 function doConfirm(type) {
   document.getElementById('sheet-overlay').classList.remove('active');
-  if (selectedEntry && selectedEntry.classList.contains('pending')) {
-    toggleConfirm(selectedEntry);
-  }
+  const target = selectedEntry || document.querySelector('#page-today .confirm-item.pending');
+  if (!target || !target.classList.contains('pending')) return;
+  const method = type === 'camera' ? '拍照确认' : '按钮确认';
+  toggleConfirm(target, method);
 }
 
 // ═══ Emoji & Frequency ═══
@@ -1942,10 +1943,11 @@ function goBack() { alert('返回主界面'); }
 let showConfirmed = true; // 默认显示全部（包括已确认）
 function toggleFilter() {
   showConfirmed = !showConfirmed;
-  const chip = document.querySelector('.filter-chip');
+  const chip = document.querySelector('#page-today .filter-chip');
   chip.classList.toggle('active', showConfirmed);
-  chip.querySelector('.filter-icon').textContent = showConfirmed ? '●' : '○';
-  chip.childNodes[1].textContent = showConfirmed ? ' 隐藏已确认' : ' 显示已确认';
+  const icon = chip.querySelector('.filter-icon');
+  icon.textContent = showConfirmed ? '●' : '○';
+  chip.querySelector('.filter-label').textContent = showConfirmed ? ' 隐藏已确认' : ' 显示已确认';
   applyFilter();
 }
 
