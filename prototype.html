@@ -1315,10 +1315,10 @@ body::before {
         </div>
 
         <div class="bottom-bar" id="bottom-bar">
-          <button class="btn btn-primary" onclick="openSheet()">
+          <button class="btn btn-primary" onclick="quickConfirm('拍照确认')">
             <span>📷</span> 拍照确认
           </button>
-          <button class="btn btn-secondary" onclick="openSheet()">
+          <button class="btn btn-secondary" onclick="quickConfirm('按钮确认')">
             <span>✓</span> 快速确认
           </button>
         </div>
@@ -1856,36 +1856,15 @@ function sortConfirmList() {
   });
 }
 
-// ═══ Bottom Sheet ═══
-function openSheet() {
-  const target = selectedEntry || document.querySelector('#page-today .confirm-item.pending');
-  if (!target || !target.classList.contains('pending')) {
-    alert('所有事项都已确认');
-    return;
-  }
-  const nameEl = target.querySelector('.name');
-  const name = nameEl.textContent.replace(/#\d+/,'').trim();
-  document.getElementById('sheet-title').textContent = '确认「' + name + '」';
-  document.getElementById('sheet-sub').textContent = selectedEntry ? '已选中的事项' : '默认第一条待确认';
-  // Clear previous selection highlight
-  document.querySelectorAll('.confirm-item.selected').forEach(function(el) { el.classList.remove('selected'); });
-  target.classList.add('selected');
-  selectedEntry = target;
-  document.getElementById('sheet-overlay').classList.add('active');
-}
-
-function closeSheet(e) {
-  if (e.target === document.getElementById('sheet-overlay')) {
-    document.getElementById('sheet-overlay').classList.remove('active');
-  }
-}
-
-function doConfirm(type) {
-  document.getElementById('sheet-overlay').classList.remove('active');
+// ═══ Bottom Bar Actions ═══
+// 直接执行，不再弹中间选择面板
+function quickConfirm(method) {
   const target = selectedEntry || document.querySelector('#page-today .confirm-item.pending');
   if (!target || !target.classList.contains('pending')) return;
-  const method = type === 'camera' ? '拍照确认' : '按钮确认';
   toggleConfirm(target, method);
+  // Clear selection after confirm
+  target.classList.remove('selected');
+  if (selectedEntry === target) selectedEntry = null;
 }
 
 // ═══ Emoji & Frequency ═══
