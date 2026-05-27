@@ -793,6 +793,36 @@ body::before {
   padding: 12px 0 8px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color .15s;
+}
+.history-date:hover { color: var(--text-mid); }
+.history-toggle {
+  display: inline-block;
+  font-size: 10px;
+  transition: transform .2s ease;
+  flex-shrink: 0;
+}
+.history-group.collapsed .history-toggle { transform: rotate(-90deg); }
+.history-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-soft);
+  font-weight: 400;
+  opacity: .7;
+}
+
+.history-items {
+  overflow: hidden;
+  transition: max-height .25s ease, opacity .2s ease;
+  max-height: 500px;
+  opacity: 1;
+}
+.history-group.collapsed .history-items {
+  max-height: 0;
+  opacity: 0;
 }
 
 .history-item {
@@ -1211,8 +1241,8 @@ body::before {
         </div>
 
         <div class="filter-bar">
-          <div class="filter-chip" onclick="toggleFilter()">
-            <span class="filter-icon">○</span> 显示已确认
+          <div class="filter-chip active" onclick="toggleFilter()">
+            <span class="filter-icon">●</span> 隐藏已确认
           </div>
           <div class="filter-right">
             <div class="filter-count" id="pending-count">2 项待确认</div>
@@ -1311,34 +1341,46 @@ body::before {
         </div>
         <div class="confirm-panel">
           <div class="history-group">
-            <div class="history-date">昨天 · 5月26日</div>
-            <div class="history-item">
-              <div class="time">08:30</div>
-              <div class="thumb">🚲</div>
-              <div><div class="name" style="font-size:14px">锁车</div><div class="meta" style="font-size:11px;color:var(--text-soft)">按钮确认</div></div>
+            <div class="history-date" onclick="toggleHistoryGroup(this)" style="cursor:pointer;user-select:none">
+              <span class="history-toggle">▼</span>
+              昨天 · 5月26日
+              <span class="history-count">3 项</span>
             </div>
-            <div class="history-item">
-              <div class="time">07:12</div>
-              <div class="thumb">💊</div>
-              <div><div class="name" style="font-size:14px">服药（早）</div><div class="meta" style="font-size:11px;color:var(--text-soft)">拍照</div></div>
-            </div>
-            <div class="history-item">
-              <div class="time">22:05</div>
-              <div class="thumb">🔥</div>
-              <div><div class="name" style="font-size:14px">关火</div><div class="meta" style="font-size:11px;color:var(--text-soft)">拍照</div></div>
+            <div class="history-items">
+              <div class="history-item" onclick="openHistoryDetail(this)">
+                <div class="time">08:30</div>
+                <div class="thumb">🚲</div>
+                <div><div class="name" style="font-size:14px">锁车</div><div class="meta" style="font-size:11px;color:var(--text-soft)">按钮确认</div></div>
+              </div>
+              <div class="history-item" onclick="openHistoryDetail(this)">
+                <div class="time">07:12</div>
+                <div class="thumb">💊</div>
+                <div><div class="name" style="font-size:14px">服药（早）</div><div class="meta" style="font-size:11px;color:var(--text-soft)">拍照</div></div>
+              </div>
+              <div class="history-item" onclick="openHistoryDetail(this)">
+                <div class="time">22:05</div>
+                <div class="thumb">🔥</div>
+                <div><div class="name" style="font-size:14px">关火</div><div class="meta" style="font-size:11px;color:var(--text-soft)">拍照</div></div>
+              </div>
             </div>
           </div>
           <div class="history-group">
-            <div class="history-date">前天 · 5月25日</div>
-            <div class="history-item">
-              <div class="time">08:45</div>
-              <div class="thumb">🚲</div>
-              <div><div class="name" style="font-size:14px">锁车</div><div class="meta" style="font-size:11px;color:var(--text-soft)">按钮确认</div></div>
+            <div class="history-date" onclick="toggleHistoryGroup(this)" style="cursor:pointer;user-select:none">
+              <span class="history-toggle">▼</span>
+              前天 · 5月25日
+              <span class="history-count">2 项</span>
             </div>
-            <div class="history-item">
-              <div class="time">07:20</div>
-              <div class="thumb">💊</div>
-              <div><div class="name" style="font-size:14px">服药（早）</div><div class="meta" style="font-size:11px;color:var(--text-soft)">拍照</div></div>
+            <div class="history-items">
+              <div class="history-item" onclick="openHistoryDetail(this)">
+                <div class="time">08:45</div>
+                <div class="thumb">🚲</div>
+                <div><div class="name" style="font-size:14px">锁车</div><div class="meta" style="font-size:11px;color:var(--text-soft)">按钮确认</div></div>
+              </div>
+              <div class="history-item" onclick="openHistoryDetail(this)">
+                <div class="time">07:20</div>
+                <div class="thumb">💊</div>
+                <div><div class="name" style="font-size:14px">服药（早）</div><div class="meta" style="font-size:11px;color:var(--text-soft)">拍照</div></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1855,16 +1897,55 @@ function selectFreq(el) {
   el.classList.add('selected');
 }
 
+// ═══ History Page ═══
+function toggleHistoryGroup(dateEl) {
+  const group = dateEl.closest('.history-group');
+  group.classList.toggle('collapsed');
+}
+
+function openHistoryDetail(itemEl) {
+  const name = itemEl.querySelector('.name').textContent;
+  const meta = itemEl.querySelector('.meta').textContent;
+  const time = itemEl.querySelector('.time').textContent;
+  const emoji = itemEl.querySelector('.thumb').textContent;
+  // 复用今日页的详情面板，填充历史数据
+  document.getElementById('detail-icon').textContent = emoji;
+  document.getElementById('detail-name').textContent = name;
+  document.getElementById('detail-time').textContent = time + ' 确认';
+  document.getElementById('detail-confirm-time').textContent = time + ':00';
+  document.getElementById('detail-method').textContent = meta.includes('拍照') ? '📷 拍照确认' : '✓ 按钮确认';
+  document.getElementById('detail-seq').textContent = '—';
+  document.getElementById('detail-status').textContent = '✅ 已确认';
+  const photoSection = document.getElementById('detail-photo-section');
+  if (meta.includes('拍照')) {
+    photoSection.style.display = '';
+  } else {
+    photoSection.style.display = 'none';
+  }
+  document.getElementById('detail-overlay').classList.add('active');
+}
+
+function closeDetail(e) {
+  if (e.target === document.getElementById('detail-overlay')) {
+    document.getElementById('detail-overlay').classList.remove('active');
+  }
+}
+
+function closeDetailSheet() {
+  document.getElementById('detail-overlay').classList.remove('active');
+}
+
 function showAddItem() { alert('打开添加事项页面（见第二台设备预览）'); }
 function goBack() { alert('返回主界面'); }
 
 // ═══ Filter ═══
-let showConfirmed = false;
+let showConfirmed = true; // 默认显示全部（包括已确认）
 function toggleFilter() {
   showConfirmed = !showConfirmed;
   const chip = document.querySelector('.filter-chip');
   chip.classList.toggle('active', showConfirmed);
   chip.querySelector('.filter-icon').textContent = showConfirmed ? '●' : '○';
+  chip.childNodes[1].textContent = showConfirmed ? ' 隐藏已确认' : ' 显示已确认';
   applyFilter();
 }
 
@@ -1874,7 +1955,7 @@ function applyFilter() {
   const pendingCount = panel.querySelectorAll('.confirm-item.pending').length;
   document.getElementById('pending-count').textContent = pendingCount + ' 项待确认';
   items.forEach(function(item) {
-    item.style.display = (!showConfirmed && item.classList.contains('confirmed')) ? 'none' : '';
+    item.style.display = (showConfirmed || item.classList.contains('pending')) ? '' : 'none';
   });
 }
 applyFilter();
