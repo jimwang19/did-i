@@ -1,0 +1,2067 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>过门不忘 — 高保真原型 + 标注</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* ── Surface ── */
+  --bg: #0c0f14;
+  --surface: #151920;
+  --surface-elevated: #1c2128;
+  --border: rgba(255,255,255,.06);
+  --border-strong: rgba(255,255,255,.12);
+
+  /* ── Accent (action) ── */
+  --accent: #4ecdc4;
+  --accent-soft: rgba(78,205,196,.12);
+  --accent-glow: rgba(78,205,196,.25);
+
+  /* ── Status ── */
+  --success: #81c784;
+  --success-soft: rgba(129,199,132,.08);
+  --success-border: rgba(129,199,132,.25);
+  --pending: #546e7a;
+  --pending-soft: rgba(84,110,122,.15);
+
+  /* ── Text ── */
+  --text: #e8edf2;
+  --text-mid: #8899a6;
+  --text-soft: #5a6f7e;
+
+  /* ── Danger ── */
+  --danger: #ef5350;
+  --danger-soft: rgba(239,83,80,.12);
+
+  /* ── Type ── */
+  --font-body: 'Noto Sans SC', -apple-system, sans-serif;
+  --font-display: 'DM Serif Display', serif;
+
+  /* ── Shape (consistent radius scale: 8/12/16/20) ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Subtle ambient gradient — not AI-purple, just depth */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 10%, rgba(78,205,196,.035), transparent),
+    radial-gradient(ellipse 400px 300px at 80% 80%, rgba(129,199,132,.025), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════
+   Annotation Layer — numbered markers + sidebar list
+   ═══════════════════════════════════════ */
+.annotation-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 99px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  color: var(--text-mid);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+  font-family: var(--font-body);
+  box-shadow: 0 4px 16px rgba(0,0,0,.3);
+}
+.annotation-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.annotation-toggle.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+.annotation-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  display: none;
+}
+.annotation-layer.visible { display: block; }
+
+/* Numbered dot on the target element */
+.anno-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 2;
+  opacity: .6;
+  box-shadow: 0 0 0 2px rgba(78,205,196,.15);
+  transition: all .15s ease;
+}
+.anno-dot:hover { opacity: 1; transform: scale(1.5); }
+.anno-dot.active { opacity: 1; transform: scale(1.5); }
+
+/* Hairline from dot to callout */
+.anno-line {
+  position: absolute;
+  background: rgba(78,205,196,.3);
+  pointer-events: none;
+}
+.anno-line.horizontal { height: 1px; }
+.anno-line.vertical { width: 1px; }
+
+/* Sidebar callout list — stacked vertically on the right */
+.anno-sidebar {
+  position: absolute;
+  top: 60px;
+  right: 12px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: auto;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.anno-sidebar::-webkit-scrollbar { display: none; }
+
+.anno-card {
+  background: rgba(12,15,20,.93);
+  border: 1px solid rgba(78,205,196,.15);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 11px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.anno-card:hover {
+  border-color: rgba(78,205,196,.4);
+  background: rgba(12,15,20,.97);
+}
+.anno-card.highlight {
+  border-color: var(--accent);
+  background: rgba(78,205,196,.06);
+}
+.anno-card .card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.anno-card .card-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.anno-card .card-type {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--accent);
+}
+.anno-card .card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.anno-card .card-body {
+  font-size: 11px;
+  color: var(--text-mid);
+  line-height: 1.55;
+}
+.anno-card .card-body strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.color-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  vertical-align: middle;
+  border: 1px solid rgba(255,255,255,.15);
+}
+
+/* ═══════════════════════════════════════
+   Device Frame
+   ═══════════════════════════════════════ */
+.proto-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 28px;
+  padding: 48px 20px 80px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.proto-device {
+  width: 375px;
+  min-height: 720px;
+  background: var(--bg);
+  border-radius: 32px;
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 40px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.03);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.proto-label {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-soft);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════
+   Status Bar
+   ═══════════════════════════════════════ */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   Header
+   ═══════════════════════════════════════ */
+.page-header {
+  padding: 4px 20px 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: .01em;
+  line-height: 1;
+}
+
+.page-header .date-sub {
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════
+   Tab Bar
+   ═══════════════════════════════════════ */
+.tab-bar {
+  display: flex;
+  padding: 0 16px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-soft);
+  cursor: pointer;
+  position: relative;
+  transition: color .15s ease;
+}
+
+.tab.active {
+  color: var(--accent);
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+/* ═══════════════════════════════════════
+   Filter Bar
+   ═══════════════════════════════════════ */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 6px;
+  flex-shrink: 0;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all .15s ease;
+  user-select: none;
+  font-family: var(--font-body);
+}
+.filter-chip:hover { border-color: var(--border-strong); }
+.filter-chip.active {
+  background: var(--accent-soft);
+  border-color: rgba(78,205,196,.25);
+  color: var(--accent);
+}
+.filter-chip .filter-icon { font-size: 13px; line-height: 1; }
+
+.filter-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-count {
+  font-size: 12px;
+  color: var(--text-soft);
+  font-weight: 500;
+}
+
+.edit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all .15s ease;
+  user-select: none;
+  font-family: var(--font-body);
+}
+.edit-toggle:hover { border-color: var(--border-strong); }
+.edit-toggle.active {
+  background: var(--danger-soft);
+  border-color: rgba(239,83,80,.25);
+  color: var(--danger);
+}
+
+/* ═══════════════════════════════════════
+   Confirmation Panel
+   ═══════════════════════════════════════ */
+.confirm-panel {
+  padding: 0 16px;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.confirm-panel::-webkit-scrollbar { display: none; }
+
+.confirm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 6px;
+  transition: all .2s ease;
+  position: relative;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.confirm-item:active {
+  transform: scale(.98);
+}
+
+/* Confirmed: green left border + soft green bg */
+.confirm-item.confirmed {
+  background: var(--success-soft);
+  border-left-color: var(--success);
+}
+
+/* Pending: gray left border + soft gray bg */
+.confirm-item.pending {
+  background: var(--pending-soft);
+  border-left-color: var(--pending);
+}
+
+/* Selected: accent highlight */
+.confirm-item.selected {
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(78,205,196,.15);
+}
+
+.confirm-item .icon {
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.04);
+  flex-shrink: 0;
+}
+
+.confirm-item .info { flex: 1; min-width: 0; }
+
+.confirm-item .name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.confirm-item .meta {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.seq-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-soft);
+  background: rgba(255,255,255,.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.confirm-item.confirmed .status-badge {
+  color: var(--success);
+  background: rgba(129,199,132,.15);
+}
+
+.confirm-item.pending .status-badge {
+  color: var(--pending);
+  background: rgba(84,110,122,.2);
+}
+
+.confirm-item .actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.confirm-item .check-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all .15s ease;
+  color: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-item.confirmed .check-btn {
+  background: var(--success);
+  border-color: var(--success);
+  color: var(--bg);
+}
+
+.confirm-item .add-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all .15s ease;
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 300;
+  background: transparent;
+}
+
+.confirm-item .add-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ═══════════════════════════════════════
+   Edit Mode
+   ═══════════════════════════════════════ */
+.delete-btn {
+  display: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s ease;
+  flex-shrink: 0;
+}
+.delete-btn:hover { background: rgba(239,83,80,.2); }
+.edit-mode .delete-btn { display: flex; }
+.edit-mode .add-item { display: none; }
+.edit-mode .confirm-item { cursor: default; }
+.edit-mode .confirm-item:active { transform: none; }
+
+/* ═══════════════════════════════════════
+   Add Item Row
+   ═══════════════════════════════════════ */
+.add-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin: 6px 14px 0;
+  border: none;
+  border-top: 1px dashed var(--border);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.add-item:hover { color: var(--accent); }
+
+.add-item .icon {
+  font-size: 16px;
+  color: var(--text-soft);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .15s ease;
+}
+.add-item:hover .icon { color: var(--accent); }
+
+.add-item .label {
+  font-size: 14px;
+  color: var(--text-mid);
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════
+   Bottom Action Bar
+   ═══════════════════════════════════════ */
+.bottom-bar {
+  padding: 16px 20px 24px;
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+.btn-primary:hover {
+  background: #5fd9d1;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.btn-primary:active { transform: scale(.98); }
+
+.btn-secondary {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(78,205,196,.2);
+}
+.btn-secondary:hover { background: rgba(78,205,196,.18); }
+.btn-secondary:active { transform: scale(.98); }
+
+/* Selected hint above bottom bar */
+.selected-hint {
+  text-align: center;
+  padding: 6px 20px 2px;
+  font-size: 11px;
+  color: var(--text-soft);
+  flex-shrink: 0;
+  background: var(--bg);
+  border-top: 1px solid transparent;
+  transition: all .15s ease;
+}
+.selected-hint.active {
+  color: var(--accent);
+  border-top-color: var(--border);
+  background: var(--accent-soft);
+}
+
+/* ═══════════════════════════════════════
+   Bottom Sheet
+   ═══════════════════════════════════════ */
+.bottom-sheet-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: none;
+  align-items: flex-end;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.bottom-sheet-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+.bottom-sheet {
+  width: 100%;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 20px 20px 32px;
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+}
+.bottom-sheet-overlay.active .bottom-sheet {
+  transform: translateY(0);
+}
+
+.bottom-sheet .sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  margin: 0 auto 18px;
+}
+
+.bottom-sheet h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.bottom-sheet .sheet-sub {
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-bottom: 20px;
+}
+
+.sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sheet-btn {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all .15s ease;
+  width: 100%;
+}
+.sheet-btn:active { transform: scale(.98); }
+
+.sheet-btn-camera {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.sheet-btn-quick {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.sheet-btn .btn-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+}
+
+.sheet-btn .btn-desc {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: .7;
+  margin-top: 1px;
+}
+
+/* ═══════════════════════════════════════
+   History
+   ═══════════════════════════════════════ */
+.history-group { padding: 0 16px; }
+
+.history-date {
+  font-size: 12px;
+  color: var(--text-soft);
+  font-weight: 600;
+  letter-spacing: .04em;
+  padding: 12px 0 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.history-item .time {
+  font-size: 12px;
+  color: var(--text-soft);
+  min-width: 50px;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-item .thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--success-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   Settings
+   ═══════════════════════════════════════ */
+.settings-section { padding: 0 16px; }
+
+.settings-group-title {
+  font-size: 12px;
+  color: var(--text-soft);
+  font-weight: 600;
+  letter-spacing: .04em;
+  padding: 16px 0 6px;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-item .label {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.settings-item .desc {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+
+.toggle {
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--pending);
+  position: relative;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.toggle.on { background: var(--success); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  top: 3px;
+  left: 3px;
+  transition: transform .2s ease;
+}
+.toggle.on::after { transform: translateX(18px); }
+
+/* ═══════════════════════════════════════
+   Page visibility
+   ═══════════════════════════════════════ */
+.page { display: none; flex-direction: column; flex: 1; }
+.page.active { display: flex; }
+
+/* ═══════════════════════════════════════
+   Empty state
+   ═══════════════════════════════════════ */
+.empty-hint {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.empty-hint .emoji {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+/* ═══════════════════════════════════════
+   Animations
+   ═══════════════════════════════════════ */
+@keyframes confirmPop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.confirm-pop { animation: confirmPop .3s ease forwards; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════
+   Detail Sheet — 确认记录详情
+   ═══════════════════════════════════════ */
+.detail-sheet-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: none;
+  align-items: flex-end;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.detail-sheet-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+.detail-sheet {
+  width: 100%;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 20px 20px 32px;
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+  max-height: 80%;
+  overflow-y: auto;
+}
+.detail-sheet-overlay.active .detail-sheet {
+  transform: translateY(0);
+}
+.detail-sheet .sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  margin: 0 auto 14px;
+}
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.detail-header .detail-icon {
+  font-size: 28px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.04);
+}
+.detail-header .detail-title h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.detail-header .detail-title .detail-time {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.detail-section {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.detail-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+.detail-row .label {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.detail-row .value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Photo thumbnail in detail */
+.detail-photo {
+  width: 100%;
+  height: 160px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: all .15s ease;
+}
+.detail-photo:hover {
+  border-color: var(--accent);
+}
+.detail-photo .photo-placeholder {
+  text-align: center;
+  color: var(--text-soft);
+}
+.detail-photo .photo-placeholder .emoji {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 6px;
+}
+.detail-photo .photo-placeholder .hint {
+  font-size: 11px;
+}
+.detail-photo .photo-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  background: rgba(0,0,0,.6);
+  color: var(--success);
+  font-size: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+/* ═══════════════════════════════════════
+   Photo Viewer — 全屏查看照片
+   ═══════════════════════════════════════ */
+.photo-viewer-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.9);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  opacity: 0;
+  transition: opacity .2s ease;
+  cursor: pointer;
+}
+.photo-viewer-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+.photo-viewer {
+  width: 90%;
+  max-height: 70vh;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.photo-viewer .viewer-placeholder {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-mid);
+}
+.photo-viewer .viewer-placeholder .emoji {
+  font-size: 56px;
+  margin-bottom: 12px;
+}
+.photo-viewer .viewer-hint {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.photo-viewer-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  transition: all .15s ease;
+}
+.photo-viewer-close:hover { background: rgba(255,255,255,.25); }
+
+/* ═══════════════════════════════════════
+   Add Item Page
+   ═══════════════════════════════════════ */
+.emoji-pick {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.emoji-pick:hover { background: var(--accent-soft); border-color: var(--accent); }
+.emoji-pick.selected { background: var(--accent-soft); border-color: var(--accent); }
+
+.freq-chip {
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all .15s ease;
+  font-family: var(--font-body);
+}
+.freq-chip:hover { border-color: var(--accent); color: var(--accent); }
+.freq-chip.selected { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  outline: none;
+  transition: border-color .15s ease;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: var(--text-soft); }
+
+.form-label {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ═══════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════ */
+@media (max-width: 860px) {
+  .proto-wrap { gap: 24px; padding: 20px 12px 60px; }
+  .proto-device { width: 100%; max-width: 375px; min-height: 640px; }
+}
+@media (max-width: 420px) {
+  .proto-wrap { padding: 12px 4px 40px; }
+  .proto-device { border-radius: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ Annotation Toggle ═══ -->
+<button class="annotation-toggle" id="anno-toggle" onclick="toggleAnnotations()">
+  <span class="anno-icon">标注</span>
+</button>
+
+<!-- ═══ Annotation Layer ═══ -->
+<div class="annotation-layer" id="annotation-layer"></div>
+
+<div class="proto-wrap">
+
+  <!-- ════════════════════════════════════
+       Page 1: 今日确认面板 (Primary Screen)
+       ════════════════════════════════════ -->
+  <div id="device-main">
+    <div class="proto-label">P1 今日确认面板 — 主界面</div>
+    <div class="proto-device" id="device-1">
+      <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+
+      <div class="page active" id="page-today">
+        <div class="page-header">
+          <h1>今日</h1>
+          <div class="date-sub">5月27日 周二</div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab active" data-tab="today">今日</div>
+          <div class="tab" data-tab="history">历史</div>
+          <div class="tab" data-tab="settings">设置</div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-chip" onclick="toggleFilter()">
+            <span class="filter-icon">○</span> 显示已确认
+          </div>
+          <div class="filter-right">
+            <div class="filter-count" id="pending-count">2 项待确认</div>
+            <div class="edit-toggle" id="edit-toggle" onclick="toggleEdit()">编辑</div>
+          </div>
+        </div>
+
+        <div class="confirm-panel" id="confirm-list">
+          <!-- Item 1: 锁车 #1 - confirmed with button -->
+          <div class="confirm-item confirmed" data-method="按钮确认" data-has-photo="false" data-confirm-time="08:32:15" data-seq="#1" onclick="selectEntry(this)">
+            <div class="icon">🚲</div>
+            <div class="info">
+              <div class="name">锁车<span class="seq-badge">#1</span></div>
+              <div class="meta"><span class="status-badge">✅ 已确认</span><span>08:32</span></div>
+            </div>
+            <div class="actions">
+              <div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>
+              <div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
+              <div class="add-btn" onclick="event.stopPropagation(); addEntry(this, '🚲', '锁车')">+</div>
+            </div>
+          </div>
+
+          <!-- Item 2: 锁车 #2 - pending -->
+          <div class="confirm-item pending" data-method="" data-has-photo="false" data-confirm-time="" data-seq="#2" onclick="selectEntry(this)">
+            <div class="icon">🚲</div>
+            <div class="info">
+              <div class="name">锁车<span class="seq-badge">#2</span></div>
+              <div class="meta"><span class="status-badge">⏳ 待确认</span></div>
+            </div>
+            <div class="actions">
+              <div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>
+              <div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
+              <div class="add-btn" onclick="event.stopPropagation(); addEntry(this, '🚲', '锁车')">+</div>
+            </div>
+          </div>
+
+          <!-- Item 3: 服药 #1 - confirmed with photo -->
+          <div class="confirm-item confirmed" data-method="拍照确认" data-has-photo="true" data-confirm-time="07:15:42" data-seq="#1" onclick="selectEntry(this)">
+            <div class="icon">💊</div>
+            <div class="info">
+              <div class="name">服药<span class="seq-badge">#1</span></div>
+              <div class="meta"><span class="status-badge">✅ 已确认</span><span>07:15 · 拍照</span></div>
+            </div>
+            <div class="actions">
+              <div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>
+              <div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
+              <div class="add-btn" onclick="event.stopPropagation(); addEntry(this, '💊', '服药')">+</div>
+            </div>
+          </div>
+
+          <!-- Item 4: 服药 #2 - pending -->
+          <div class="confirm-item pending" data-method="" data-has-photo="false" data-confirm-time="" data-seq="#2" onclick="selectEntry(this)">
+            <div class="icon">💊</div>
+            <div class="info">
+              <div class="name">服药<span class="seq-badge">#2</span></div>
+              <div class="meta"><span class="status-badge">⏳ 待确认</span></div>
+            </div>
+            <div class="actions">
+              <div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>
+              <div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
+              <div class="add-btn" onclick="event.stopPropagation(); addEntry(this, '💊', '服药')">+</div>
+            </div>
+          </div>
+
+          <!-- Add new item row -->
+          <div class="add-item" onclick="showAddItem()">
+            <div class="icon">+</div>
+            <div class="label">添加新事项</div>
+          </div>
+        </div>
+
+        <div class="bottom-bar" id="bottom-bar">
+          <button class="btn btn-primary" onclick="openSheet()">
+            <span>📷</span> 拍照确认
+          </button>
+          <button class="btn btn-secondary" onclick="openSheet()">
+            <span>✓</span> 快速确认
+          </button>
+        </div>
+
+        <div class="selected-hint" id="selected-hint">
+          <span>点选任意事项，底部按钮确认该项</span>
+        </div>
+      </div>
+
+      <!-- ═══ Page 2: 历史 ═══ -->
+      <div class="page" id="page-history">
+        <div class="page-header">
+          <h1>历史</h1>
+          <div class="date-sub">查看过往记录</div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab" data-tab="today">今日</div>
+          <div class="tab active" data-tab="history">历史</div>
+          <div class="tab" data-tab="settings">设置</div>
+        </div>
+        <div class="confirm-panel">
+          <div class="history-group">
+            <div class="history-date">昨天 · 5月26日</div>
+            <div class="history-item">
+              <div class="time">08:30</div>
+              <div class="thumb">🚲</div>
+              <div><div class="name" style="font-size:14px">锁车</div><div class="meta" style="font-size:11px;color:var(--text-soft)">按钮确认</div></div>
+            </div>
+            <div class="history-item">
+              <div class="time">07:12</div>
+              <div class="thumb">💊</div>
+              <div><div class="name" style="font-size:14px">服药（早）</div><div class="meta" style="font-size:11px;color:var(--text-soft)">拍照</div></div>
+            </div>
+            <div class="history-item">
+              <div class="time">22:05</div>
+              <div class="thumb">🔥</div>
+              <div><div class="name" style="font-size:14px">关火</div><div class="meta" style="font-size:11px;color:var(--text-soft)">拍照</div></div>
+            </div>
+          </div>
+          <div class="history-group">
+            <div class="history-date">前天 · 5月25日</div>
+            <div class="history-item">
+              <div class="time">08:45</div>
+              <div class="thumb">🚲</div>
+              <div><div class="name" style="font-size:14px">锁车</div><div class="meta" style="font-size:11px;color:var(--text-soft)">按钮确认</div></div>
+            </div>
+            <div class="history-item">
+              <div class="time">07:20</div>
+              <div class="thumb">💊</div>
+              <div><div class="name" style="font-size:14px">服药（早）</div><div class="meta" style="font-size:11px;color:var(--text-soft)">拍照</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Page 3: 设置 ═══ -->
+      <div class="page" id="page-settings">
+        <div class="page-header">
+          <h1>设置</h1>
+          <div class="date-sub">偏好与数据</div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab" data-tab="today">今日</div>
+          <div class="tab" data-tab="history">历史</div>
+          <div class="tab active" data-tab="settings">设置</div>
+        </div>
+        <div class="confirm-panel">
+          <div class="settings-section">
+            <div class="settings-group-title">确认偏好</div>
+            <div class="settings-item">
+              <div>
+                <div class="label">默认确认方式</div>
+                <div class="desc">按钮确认 / 拍照确认</div>
+              </div>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="label">每日重置时间</div>
+                <div class="desc">当前：午夜 00:00</div>
+              </div>
+              <span style="color:var(--text-soft);font-size:14px">›</span>
+            </div>
+            <div class="settings-group-title">数据</div>
+            <div class="settings-item">
+              <div>
+                <div class="label">导出数据</div>
+                <div class="desc">导出 JSON / CSV</div>
+              </div>
+              <span style="color:var(--text-soft);font-size:14px">›</span>
+            </div>
+            <div class="settings-item">
+              <div>
+                <div class="label">清空历史记录</div>
+                <div class="desc" style="color:var(--danger)">不可恢复</div>
+              </div>
+              <span style="color:var(--danger);font-size:14px">›</span>
+            </div>
+            <div class="settings-group-title">关于</div>
+            <div class="settings-item">
+              <div>
+                <div class="label">过门不忘</div>
+                <div class="desc">v0.1.0 MVP</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Sheet Overlay -->
+      <div class="bottom-sheet-overlay" id="sheet-overlay" onclick="closeSheet(event)">
+        <div class="bottom-sheet">
+          <div class="sheet-handle"></div>
+          <h3 id="sheet-title">选择确认方式</h3>
+          <div class="sheet-sub" id="sheet-sub">选择确认方式</div>
+          <div class="sheet-actions">
+            <button class="sheet-btn sheet-btn-camera" onclick="doConfirm('camera')">
+              <span class="btn-icon">📷</span>
+              <div><div>拍照确认</div><div class="btn-desc">拍摄照片作为证据</div></div>
+            </button>
+            <button class="sheet-btn sheet-btn-quick" onclick="doConfirm('quick')">
+              <span class="btn-icon">✓</span>
+              <div><div>快速确认</div><div class="btn-desc">一键记录"已做"</div></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Sheet Overlay — 确认记录详情 -->
+      <div class="detail-sheet-overlay" id="detail-overlay" onclick="closeDetail(event)">
+        <div class="detail-sheet" onclick="event.stopPropagation()">
+          <div class="sheet-handle"></div>
+          <div class="detail-header">
+            <div class="detail-icon" id="detail-icon">🚲</div>
+            <div class="detail-title">
+              <h3 id="detail-name">锁车</h3>
+              <div class="detail-time" id="detail-time">08:32 确认</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-row">
+              <span class="label">确认状态</span>
+              <span class="value" id="detail-status" style="color:var(--success)">✅ 已确认</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">确认时间</span>
+              <span class="value" id="detail-confirm-time">08:32:15</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">确认方式</span>
+              <span class="value" id="detail-method">📷 拍照确认</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">今日第几次</span>
+              <span class="value" id="detail-seq">#1</span>
+            </div>
+          </div>
+
+          <div class="detail-section" id="detail-photo-section">
+            <div class="detail-row">
+              <span class="label">照片记录</span>
+              <span class="value" id="detail-has-photo" style="color:var(--accent)">有</span>
+            </div>
+            <div class="detail-photo" id="detail-photo" onclick="openPhotoViewer()">
+              <div class="photo-placeholder">
+                <span class="emoji">📷</span>
+                <span class="hint">点击查看照片</span>
+              </div>
+              <div class="photo-badge">已拍摄</div>
+            </div>
+          </div>
+
+          <div class="detail-section" style="border-top:none;padding-top:8px">
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-secondary" style="flex:1;font-size:13px;padding:10px" onclick="undoConfirm()">撤销确认</button>
+              <button class="btn btn-primary" style="flex:1;font-size:13px;padding:10px" onclick="closeDetailSheet()">关闭</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photo Viewer Overlay — 全屏查看照片 -->
+      <div class="photo-viewer-overlay" id="photo-viewer" onclick="closePhotoViewer()">
+        <div class="photo-viewer" onclick="event.stopPropagation()">
+          <button class="photo-viewer-close" onclick="closePhotoViewer()">✕</button>
+          <div class="viewer-placeholder">
+            <div class="emoji" id="viewer-emoji">🚲</div>
+            <div class="viewer-hint">MVP 阶段为占位图，实际为拍照照片</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       Page 4: 添加事项
+       ════════════════════════════════════ -->
+  <div>
+    <div class="proto-label">P2 添加事项</div>
+    <div class="proto-device" id="device-2">
+      <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="page active">
+        <div class="page-header">
+          <h1>添加事项</h1>
+          <div class="date-sub">自定义你的确认清单</div>
+        </div>
+
+        <div class="confirm-panel" style="padding-top:16px">
+          <div style="padding:0 16px">
+            <div style="margin-bottom:20px">
+              <label class="form-label">名称 <span style="color:var(--danger)">*</span></label>
+              <input type="text" class="form-input" placeholder="例如：锁门、关窗、喂猫...">
+            </div>
+
+            <div style="margin-bottom:24px">
+              <label class="form-label">图标（可选）</label>
+              <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+                <div class="emoji-pick" onclick="pickEmoji(this)">🚲</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🔥</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🚪</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🐱</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🐶</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">💡</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">📦</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🔒</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">💧</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">📋</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🏠</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">📝</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:20px">
+              <label class="form-label">每日次数</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <div class="freq-chip selected" onclick="selectFreq(this)">1次</div>
+                <div class="freq-chip" onclick="selectFreq(this)">2次</div>
+                <div class="freq-chip" onclick="selectFreq(this)">3次</div>
+                <div class="freq-chip" onclick="selectFreq(this)">自定义</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <button class="btn btn-secondary" onclick="goBack()">取消</button>
+          <button class="btn btn-primary">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       Page 5: 首次使用引导
+       ════════════════════════════════════ -->
+  <div>
+    <div class="proto-label">P3 首次使用引导</div>
+    <div class="proto-device" id="device-3">
+      <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="page active">
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 24px;text-align:center">
+          <div style="font-size:56px;margin-bottom:20px;animation:confirmPop .6s ease">🚲</div>
+          <h2 style="font-family:var(--font-display);font-size:22px;color:var(--text);margin-bottom:8px;font-weight:400">告别"门口"效应</h2>
+          <p style="font-size:14px;color:var(--text-soft);line-height:1.7;margin-bottom:32px;max-width:280px">
+            大脑重启前，轻松留痕。<br>安心转身向前走。
+          </p>
+
+          <div style="width:100%;text-align:left;margin-bottom:32px">
+            <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:18px">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--accent);flex-shrink:0;font-weight:600">1</div>
+              <div><div style="font-size:14px;font-weight:500;margin-bottom:2px">预设了锁车和服药</div><div style="font-size:12px;color:var(--text-soft)">你也可以随时添加更多事项</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:18px">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--accent);flex-shrink:0;font-weight:600">2</div>
+              <div><div style="font-size:14px;font-weight:500;margin-bottom:2px">完成后点确认</div><div style="font-size:12px;color:var(--text-soft)">拍照或按钮，选你喜欢的方式</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--accent);flex-shrink:0;font-weight:600">3</div>
+              <div><div style="font-size:14px;font-weight:500;margin-bottom:2px">需要时一眼就能看到</div><div style="font-size:12px;color:var(--text-soft)">已确认 / 待确认，一目了然</div></div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;padding:14px;font-size:16px" onclick="alert('进入主界面')">
+            开始使用
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══ Tab Navigation ═══
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    const device = this.closest('.proto-device');
+    const tabName = this.dataset.tab;
+    device.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    const pages = device.querySelectorAll('.page');
+    pages.forEach(p => p.classList.remove('active'));
+    if (tabName === 'today') document.getElementById('page-today').classList.add('active');
+    else if (tabName === 'history') document.getElementById('page-history').classList.add('active');
+    else if (tabName === 'settings') document.getElementById('page-settings').classList.add('active');
+  });
+});
+
+// ═══ Add Entry ═══
+function addEntry(btn, emoji, name) {
+  const panel = document.getElementById('confirm-list');
+  const addItem = panel.querySelector('.add-item');
+  const existing = panel.querySelectorAll('.confirm-item');
+  let maxSeq = 0;
+  existing.forEach(function(item) {
+    const badge = item.querySelector('.seq-badge');
+    if (badge && item.querySelector('.name').textContent.indexOf(name) === 0) {
+      const n = parseInt(badge.textContent.replace('#',''), 10);
+      if (n > maxSeq) maxSeq = n;
+    }
+  });
+  const seq = '#' + (maxSeq + 1);
+  const newItem = document.createElement('div');
+  newItem.className = 'confirm-item pending';
+  newItem.onclick = function() { selectEntry(this); };
+  newItem.innerHTML =
+    '<div class="icon">' + emoji + '</div>' +
+    '<div class="info">' +
+      '<div class="name">' + name + '<span class="seq-badge">' + seq + '</span></div>' +
+      '<div class="meta"><span class="status-badge">⏳ 待确认</span></div>' +
+    '</div>' +
+    '<div class="actions">' +
+      '<div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>' +
+      '<div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest(\'confirm-item\'))">✓</div>' +
+      '<div class="add-btn" onclick="event.stopPropagation(); addEntry(this, \'' + emoji + '\', \'' + name + '\')">+</div>' +
+    '</div>';
+  newItem.style.opacity = '0';
+  newItem.style.transform = 'translateY(-8px)';
+  addItem.parentNode.insertBefore(newItem, addItem);
+  requestAnimationFrame(function() {
+    newItem.style.transition = 'opacity .2s ease, transform .2s ease';
+    newItem.style.opacity = '1';
+    newItem.style.transform = 'translateY(0)';
+  });
+}
+
+// ═══ Select Entry ═══
+let selectedEntry = null;
+function selectEntry(el) {
+  const panel = document.getElementById('confirm-list');
+  panel.querySelectorAll('.confirm-item').forEach(function(item) { item.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedEntry = el;
+
+  // Update bottom hint
+  const nameEl = el.querySelector('.name');
+  const name = nameEl.textContent.trim();
+  const hint = document.getElementById('selected-hint');
+  if (el.classList.contains('pending')) {
+    hint.textContent = '选中「' + name + '」→ 底部按钮确认';
+    hint.classList.add('active');
+  } else if (el.classList.contains('confirmed')) {
+    openDetailSheet(el);
+    hint.textContent = '查看「' + name + '」详情';
+    hint.classList.add('active');
+  }
+
+  // If pending, update bottom bar buttons to show the item name
+  updateBottomBarHint();
+}
+
+// ═══ Bottom Bar Hint ═══
+function updateBottomBarHint() {
+  const hint = document.getElementById('selected-hint');
+  const btnPhoto = document.querySelector('.btn-primary');
+  const btnQuick = document.querySelector('.btn-secondary');
+
+  if (selectedEntry && selectedEntry.classList.contains('pending')) {
+    const nameEl = selectedEntry.querySelector('.name');
+    const name = nameEl.textContent.replace(/#\d+/,'').trim();
+    btnPhoto.innerHTML = '<span>📷</span> 拍照确认「' + name + '」';
+    btnQuick.innerHTML = '<span>✓</span> 快速确认「' + name + '」';
+  } else {
+    btnPhoto.innerHTML = '<span>📷</span> 拍照确认';
+    btnQuick.innerHTML = '<span>✓</span> 快速确认';
+  }
+}
+
+function resetSelection() {
+  const panel = document.getElementById('confirm-list');
+  panel.querySelectorAll('.confirm-item').forEach(function(item) { item.classList.remove('selected'); });
+  selectedEntry = null;
+  document.getElementById('selected-hint').textContent = '点选任意事项，底部按钮确认该项';
+  document.getElementById('selected-hint').classList.remove('active');
+  updateBottomBarHint();
+}
+
+// ═══ Detail Sheet ═══
+let detailTarget = null;
+function openDetailSheet(el) {
+  detailTarget = el;
+  const icon = el.querySelector('.icon').textContent;
+  const nameEl = el.querySelector('.name');
+  const name = nameEl.textContent.replace(/#\d+/,'').trim();
+  const method = el.dataset.method || '按钮确认';
+  const hasPhoto = el.dataset.hasPhoto === 'true';
+  const confirmTime = el.dataset.confirmTime || '--:--:--';
+  const seq = el.dataset.seq || '--';
+
+  document.getElementById('detail-icon').textContent = icon;
+  document.getElementById('detail-name').textContent = name;
+  document.getElementById('detail-time').textContent = confirmTime.split(':')[0] + ':' + confirmTime.split(':')[1] + ' 确认';
+  document.getElementById('detail-confirm-time').textContent = confirmTime;
+  document.getElementById('detail-method').textContent = (hasPhoto ? '📷 ' : '✓ ') + method;
+  document.getElementById('detail-seq').textContent = seq;
+  document.getElementById('detail-status').textContent = '✅ 已确认';
+  document.getElementById('detail-status').style.color = 'var(--success)';
+  document.getElementById('detail-has-photo').textContent = hasPhoto ? '有' : '无';
+  document.getElementById('detail-has-photo').style.color = hasPhoto ? 'var(--accent)' : 'var(--text-soft)';
+  document.getElementById('viewer-emoji').textContent = icon;
+  document.getElementById('detail-photo-section').style.display = hasPhoto ? '' : 'none';
+
+  document.getElementById('detail-overlay').classList.add('active');
+}
+
+function closeDetail(e) {
+  if (e && e.target === document.getElementById('detail-overlay')) {
+    document.getElementById('detail-overlay').classList.remove('active');
+  }
+}
+
+function closeDetailSheet() {
+  document.getElementById('detail-overlay').classList.remove('active');
+}
+
+function undoConfirm() {
+  if (detailTarget) {
+    detailTarget.classList.remove('confirmed', 'selected');
+    detailTarget.classList.add('pending');
+    const meta = detailTarget.querySelector('.meta');
+    meta.innerHTML = '<span class="status-badge">⏳ 待确认</span>';
+    detailTarget.dataset.method = '';
+    detailTarget.dataset.hasPhoto = 'false';
+    detailTarget.dataset.confirmTime = '';
+    applyFilter();
+  }
+  closeDetailSheet();
+}
+
+// ═══ Photo Viewer ═══
+function openPhotoViewer() {
+  document.getElementById('photo-viewer').classList.add('active');
+}
+
+function closePhotoViewer() {
+  document.getElementById('photo-viewer').classList.remove('active');
+}
+
+// ═══ Toggle Confirm ═══
+function toggleConfirm(el, method) {
+  if (!el || !el.classList.contains('confirm-item')) return;
+  method = method || '按钮确认';
+  const isPending = el.classList.contains('pending');
+  const meta = el.querySelector('.meta');
+  if (isPending) {
+    el.classList.remove('pending');
+    el.classList.add('confirmed');
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    const fullTime = time + ':' + now.getSeconds().toString().padStart(2,'0');
+    const methodLabel = method === '拍照确认' ? ' · 拍照' : '';
+    meta.innerHTML = '<span class="status-badge">✅ 已确认</span><span>' + time + methodLabel + '</span>';
+    el.dataset.method = method;
+    el.dataset.hasPhoto = method === '拍照确认' ? 'true' : 'false';
+    el.dataset.confirmTime = fullTime;
+    // Update seq badge tracking
+    const seqEl = el.querySelector('.seq-badge');
+    if (seqEl) el.dataset.seq = seqEl.textContent;
+    const btn = el.querySelector('.check-btn');
+    btn.classList.add('confirm-pop');
+    setTimeout(function() { btn.classList.remove('confirm-pop'); }, 300);
+    el.classList.remove('selected');
+    if (selectedEntry === el) selectedEntry = null;
+  } else {
+    el.classList.remove('confirmed');
+    el.classList.add('pending');
+    meta.innerHTML = '<span class="status-badge">⏳ 待确认</span>';
+    el.dataset.method = '';
+    el.dataset.hasPhoto = 'false';
+    el.dataset.confirmTime = '';
+  }
+  applyFilter();
+  sortConfirmList();
+}
+
+// ═══ Sort Confirm List ═══
+// 已确认的按时间倒序排列（最新的在最上面），未确认的保持原顺序排在后面
+function sortConfirmList() {
+  const panel = document.getElementById('confirm-list');
+  const addItem = panel.querySelector('.add-item');
+  const items = Array.from(panel.querySelectorAll('.confirm-item'));
+  if (items.length === 0) return;
+
+  // Split into pending and confirmed
+  const pending = items.filter(function(i) { return i.classList.contains('pending'); });
+  const confirmed = items.filter(function(i) { return i.classList.contains('confirmed'); });
+
+  // Sort confirmed by confirm time descending
+  confirmed.sort(function(a, b) {
+    const timeA = a.dataset.confirmTime || '';
+    const timeB = b.dataset.confirmTime || '';
+    if (!timeA && !timeB) return 0;
+    if (!timeA) return 1;
+    if (!timeB) return -1;
+    return timeB.localeCompare(timeA);
+  });
+
+  // Re-insert: pending first, then confirmed (newest on top of confirmed group)
+  const sorted = pending.concat(confirmed);
+  sorted.forEach(function(item, idx) {
+    panel.insertBefore(item, addItem);
+  });
+
+  // If all items were pending, nothing changed
+}
+
+// ═══ Bottom Sheet ═══
+function openSheet() {
+  const target = selectedEntry || document.querySelector('#page-today .confirm-item.pending');
+  if (!target || !target.classList.contains('pending')) {
+    alert('所有事项都已确认');
+    return;
+  }
+  const nameEl = target.querySelector('.name');
+  const name = nameEl.textContent.replace(/#\d+/,'').trim();
+  document.getElementById('sheet-title').textContent = '确认「' + name + '」';
+  document.getElementById('sheet-sub').textContent = selectedEntry ? '已选中的事项' : '默认第一条待确认';
+  target.classList.add('selected');
+  selectedEntry = target;
+  document.getElementById('sheet-overlay').classList.add('active');
+}
+
+function closeSheet(e) {
+  if (e.target === document.getElementById('sheet-overlay')) {
+    document.getElementById('sheet-overlay').classList.remove('active');
+  }
+}
+
+function doConfirm(type) {
+  document.getElementById('sheet-overlay').classList.remove('active');
+  if (selectedEntry && selectedEntry.classList.contains('pending')) {
+    toggleConfirm(selectedEntry);
+  }
+}
+
+// ═══ Emoji & Frequency ═══
+function pickEmoji(el) {
+  el.parentNode.querySelectorAll('.emoji-pick').forEach(function(e) { e.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+function selectFreq(el) {
+  el.parentNode.querySelectorAll('.freq-chip').forEach(function(e) { e.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+function showAddItem() { alert('打开添加事项页面（见第二台设备预览）'); }
+function goBack() { alert('返回主界面'); }
+
+// ═══ Filter ═══
+let showConfirmed = false;
+function toggleFilter() {
+  showConfirmed = !showConfirmed;
+  const chip = document.querySelector('.filter-chip');
+  chip.classList.toggle('active', showConfirmed);
+  chip.querySelector('.filter-icon').textContent = showConfirmed ? '●' : '○';
+  applyFilter();
+}
+
+function applyFilter() {
+  const panel = document.getElementById('confirm-list');
+  const items = panel.querySelectorAll('.confirm-item');
+  const pendingCount = panel.querySelectorAll('.confirm-item.pending').length;
+  document.getElementById('pending-count').textContent = pendingCount + ' 项待确认';
+  items.forEach(function(item) {
+    item.style.display = (!showConfirmed && item.classList.contains('confirmed')) ? 'none' : '';
+  });
+}
+applyFilter();
+
+// ═══ Edit Mode ═══
+let editMode = false;
+function toggleEdit() {
+  editMode = !editMode;
+  const panel = document.getElementById('confirm-list');
+  const toggle = document.getElementById('edit-toggle');
+  panel.classList.toggle('edit-mode', editMode);
+  toggle.classList.toggle('active', editMode);
+  toggle.textContent = editMode ? '完成' : '编辑';
+}
+
+function deleteEntry(btn) {
+  const item = btn.closest('.confirm-item');
+  if (!item) return;
+  if (selectedEntry === item) selectedEntry = null;
+  item.style.transition = 'opacity .2s ease, transform .2s ease';
+  item.style.opacity = '0';
+  item.style.transform = 'translateX(-20px)';
+  setTimeout(function() {
+    item.remove();
+    applyFilter();
+    sortConfirmList();
+  }, 200);
+}
+
+// ═══ Annotation Layer ═══
+let annotationsVisible = false;
+let highlightedAnnoIdx = -1;
+
+function toggleAnnotations() {
+  annotationsVisible = !annotationsVisible;
+  const layer = document.getElementById('annotation-layer');
+  const btn = document.getElementById('anno-toggle');
+  layer.classList.toggle('visible', annotationsVisible);
+  btn.classList.toggle('active', annotationsVisible);
+  if (annotationsVisible) buildAnnotations();
+  else clearAnnotations();
+}
+
+function clearAnnotations() {
+  document.getElementById('annotation-layer').innerHTML = '';
+  highlightedAnnoIdx = -1;
+}
+
+function buildAnnotations() {
+  const layer = document.getElementById('annotation-layer');
+  clearAnnotations();
+
+  const annos = [
+    {
+      num: 1, type: '间距',
+      target: '#device-1 .page-header',
+      title: 'Header 内边距',
+      body: '顶部 4px · 左右 20px · 底部 8px<br>标题 22px/DM Serif · 日期 12px<br>baseline 对齐，gap 10px'
+    },
+    {
+      num: 2, type: '导航',
+      target: '#device-1 .tab-bar',
+      title: 'Tab 切换栏',
+      body: '三等分 · 13px/500<br>激活态: accent 色 + 底部 2px 指示条<br>border-bottom 1px 分隔内容区'
+    },
+    {
+      num: 3, type: '过滤栏',
+      target: '#device-1 .filter-bar',
+      title: 'Filter + 编辑切换',
+      body: '左侧: 显示已确认 chip (pill radius 99px)<br>右侧: 待确认计数 + 编辑按钮<br>chip 激活: accent soft 背景'
+    },
+    {
+      num: 4, type: '卡片',
+      target: '#device-1 .confirm-item.confirmed',
+      title: '确认卡片 — 已确认',
+      body: '左边框 3px #81c784 + 浅绿背景<br>icon 32x32 radius 8px<br>名称 15px/500 · 时间戳绿色<br>设计意图: 一眼获得"做过了"的安心感'
+    },
+    {
+      num: 5, type: '卡片',
+      target: '#device-1 .confirm-item.pending',
+      title: '确认卡片 — 待确认',
+      body: '左边框 3px #546e7a + 浅灰背景<br>灰色 ⏳ 标签，不用红色/橙色<br>设计意图: 不制造焦虑和紧迫感'
+    },
+    {
+      num: 6, type: '交互',
+      target: '#device-1 .confirm-item .check-btn',
+      title: '确认按钮',
+      body: '28x28 圆形 · 待确认时透明描边<br>已确认时绿色实心 + ✓<br>:active scale(.98) 触觉反馈<br>点击触发 confirmPop 弹跳动画'
+    },
+    {
+      num: 7, type: '底部操作栏',
+      target: '#device-1 .bottom-bar',
+      title: '双按钮布局',
+      body: 'padding: 16px 20px 24px<br>主按钮: #4ecdc4 深色文字<br>次按钮: soft 背景 + 描边<br>gap 10px · 等分宽度'
+    },
+    {
+      num: 8, type: '动效',
+      target: '#device-1 .bottom-sheet-overlay',
+      title: 'Bottom Sheet 弹出',
+      body: 'overlay: opacity .25s ease<br>sheet: translateY 100%→0<br>.3s cubic-bezier(.4,0,.2,1)<br>handle 提示可下拉关闭'
+    },
+    {
+      num: 9, type: '表单',
+      target: '#device-2 .form-input',
+      title: '输入框规格',
+      body: 'radius 12px · border 1px --border-strong<br>focus: border-color → accent<br>placeholder: text-soft 色<br>Label 在输入上方，gap 8px'
+    },
+    {
+      num: 10, type: '交互',
+      target: '#device-2 .emoji-pick',
+      title: 'Emoji 图标选择器',
+      body: '44x44 触控区域 · radius 8px<br>6 列 Grid · gap 8px<br>hover/selected: accent soft + 描边<br>12 个预设图标'
+    },
+    {
+      num: 11, type: '引导设计',
+      target: '#device-3 h2',
+      title: 'Onboarding 三步引导',
+      body: '1. 预设事项降低启动门槛<br>2. 多种确认方式自由选<br>3. 状态面板一眼可见<br>CTA: 全宽主按钮 · 14px padding'
+    },
+    {
+      num: 12, type: '色彩体系',
+      target: '#device-1',
+      title: 'Design Tokens',
+      body: '<span class="color-swatch" style="background:#0c0f14"></span> 主背景 #0c0f14<br><span class="color-swatch" style="background:#4ecdc4"></span> 强调色 #4ecdc4<br><span class="color-swatch" style="background:#81c784"></span> 确认色 #81c784<br><span class="color-swatch" style="background:#546e7a"></span> 待确认 #546e7a<br><span class="color-swatch" style="background:#e8edf2"></span> 文字色 #e8edf2'
+    }
+  ];
+
+  // Build dots: small dots on target elements (no numbers shown on page)
+  annos.forEach(function(anno, idx) {
+    const el = document.querySelector(anno.target);
+    if (!el) return;
+
+    // annotation-layer is position:fixed, so use viewport coordinates directly
+    const elRect = el.getBoundingClientRect();
+
+    // Position: right edge of element, vertically centered
+    const dotTop = elRect.top + elRect.height / 2 - 5;
+    const dotLeft = elRect.right - 5;
+
+    const dot = document.createElement('div');
+    dot.className = 'anno-dot';
+    dot.style.top = dotTop + 'px';
+    dot.style.left = dotLeft + 'px';
+    dot.dataset.idx = idx;
+    dot.addEventListener('click', function() { highlightCard(idx); });
+    dot.addEventListener('mouseenter', function() { highlightCard(idx); });
+    dot.addEventListener('mouseleave', function() { unhighlightAll(); });
+    layer.appendChild(dot);
+  });
+
+  // Build sidebar card list
+  const sidebar = document.createElement('div');
+  sidebar.className = 'anno-sidebar';
+
+  annos.forEach(function(anno, idx) {
+    const card = document.createElement('div');
+    card.className = 'anno-card';
+    card.dataset.idx = idx;
+    card.innerHTML =
+      '<div class="card-header">' +
+        '<div class="card-num">' + anno.num + '</div>' +
+        '<div class="card-type">' + anno.type + '</div>' +
+      '</div>' +
+      '<div class="card-title">' + anno.title + '</div>' +
+      '<div class="card-body">' + anno.body + '</div>';
+    card.addEventListener('mouseenter', function() { highlightCard(idx); });
+    card.addEventListener('mouseleave', function() { unhighlightAll(); });
+    sidebar.appendChild(card);
+  });
+
+  layer.appendChild(sidebar);
+}
+
+function highlightCard(idx) {
+  document.querySelectorAll('.anno-dot').forEach(function(d) {
+    d.classList.toggle('active', parseInt(d.dataset.idx) === idx);
+  });
+  document.querySelectorAll('.anno-card').forEach(function(c) {
+    c.classList.toggle('highlight', parseInt(c.dataset.idx) === idx);
+  });
+}
+
+function unhighlightAll() {
+  document.querySelectorAll('.anno-dot').forEach(function(d) { d.classList.remove('active'); });
+  document.querySelectorAll('.anno-card').forEach(function(c) { c.classList.remove('highlight'); });
+}
+</script>
+
+</body>
+</html>
