@@ -10,7 +10,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **过门不忘** — "Did I?" 确认工具，解决空间切换后的遗忘焦虑（门口效应）。Slogan：`告别"门口"效应，大脑重启前轻松留痕，安心转身向前走`
 
-当前状态：**市场调研完成，MVP 规划阶段**。
+当前状态：**原型交互迭代中**（分支 `feat/prototype-interaction`），Stage 3→5 过渡。
+
+## Technical Architecture
+
+### 代码结构
+
+本项目目前 **无构建系统**，纯 HTML/CSS/JS 文件，直接在浏览器中打开即可运行。
+
+| 文件 | 用途 |
+|------|------|
+| `index.html` | 项目导航页（入口），含文档链接、功能入口 |
+| `prototype.html` | 高保真交互原型，包含完整 CSS 设计令牌 + JS 交互逻辑 |
+
+### 原型架构要点
+
+- **单文件架构**: `prototype.html` 自包含所有 CSS（`<style>`）和 JS（`<script>`），无需外部依赖
+- **设计令牌系统**: CSS 自定义属性定义在 `:root`，包含色彩/间距/圆角/字体层级，与 `docs/03-design/ui-spec.md` 和 `visual-style-guide.md` 一一对应
+- **暗色主题**: 背景 `#0c0f14`，强调色 `#4ecdc4`（行动），确认色 `#81c784`（安心），待确认色 `#546e7a`（中性）
+- **标注系统**: 原型内置 annotation layer（编号标注 + 侧边栏说明），用于设计评审，可通过右上角开关切换
+- **模拟数据**: 使用 `localStorage` 持久化事项和确认记录，刷新后数据不丢失
+
+### 运行方式
+
+```bash
+# 方式一：直接在浏览器打开
+open index.html          # 项目导航
+open prototype.html      # 高保真原型
+
+# 方式二：本地服务器（推荐，避免 file:// 限制）
+python -m http.server 8080   # 然后访问 http://localhost:8080
+```
 
 ## 产品核心概念
 
@@ -25,8 +55,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | File | Purpose |
 |------|---------|
+| `prototype.html` | 高保可交互原型，设计评审和验证的核心载体 |
+| `index.html` | 项目导航入口 |
 | `docs/02-product/product-spec.md` | 产品功能规格书，所有功能定义和交付标准的唯一来源 |
 | `docs/01-research/market-competitive-analysis.md` | 市场竞品分析报告 |
+| `docs/03-design/interaction-design.md` | 交互设计文档 |
+| `docs/03-design/ui-spec.md` | UI 规格（设计令牌、组件规范） |
+| `docs/03-design/visual-style-guide.md` | 视觉风格指南 |
+| `.claude/prds/memo-tool.prd.md` | 产品定位 PRD |
 
 ## 文档结构
 
