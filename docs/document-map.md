@@ -31,6 +31,7 @@
 | **UI规格** `03-design/ui-spec.md` | ← 交互设计、视觉风格 | → Blueprint、原型 | ✅ 已完成 |
 | **视觉风格指南** `03-design/visual-style-guide.md` | ← 交互设计、UI规格 | → 原型 | ✅ 已完成 |
 | **高保真原型** `prototype.html` | ← 全部设计文档 | → 用户验证 | 🔄 迭代中 |
+| **MVP 架构方案** `04-plan/mvp-architecture-plan.md` | ← 全部设计文档 | → 原型实现 | 🔄 迭代中 |
 | **MVP Blueprint** `04-plan/mvp-features-blueprint.md` | ← PRD、产品规格书 | → 原型（逐步实现） | 待创建 |
 | **开发流程技能映射** `04-plan/dev-workflow-skills.md` | ← 全部文档 | → 开发流程参考 | 待创建 |
 

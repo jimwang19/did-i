@@ -3,358 +3,850 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>做过确认 — 项目文档中心</title>
+<title>过门不忘 — 项目导航</title>
 <style>
-  :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #242836;
-    --border: #2e3348;
-    --text: #e4e6f0;
-    --text2: #8b8fa8;
-    --accent: #6c8cff;
-    --accent2: #4a6bff;
-    --green: #4ade80;
-    --yellow: #fbbf24;
-    --red: #f87171;
-    --orange: #fb923c;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, "SF Pro Text", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+:root{
+  --font-display:"Avenir Next","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
+  --bg:#0c0f14;
+  --panel:rgba(255,255,255,.045);
+  --panel-strong:rgba(255,255,255,.07);
+  --line:rgba(126,220,212,.18);
+  --line-strong:rgba(126,220,212,.34);
+  --text:#dce3ec;
+  --text-soft:#8899a4;
+  --text-mid:#5e6f7d;
+  --accent:#4ecdc4;
+  --accent-strong:#3ab5ac;
+  --accent-soft:#7edcd4;
+  --accent-glow:rgba(78,205,196,.18);
+  --warm:#ff8c42;
+  --warm-dim:rgba(255,140,66,.12);
+  --red:#ff6b6b;
+  --gold:#ffd93d;
+  --olive:#7a8f62;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.container{max-width:1100px;margin:0 auto;padding:32px 24px}
 
-  .header { padding: 32px 24px 24px; border-bottom: 1px solid var(--border); }
-  .header h1 { font-size: 24px; font-weight: 700; }
-  .header h1 span { color: var(--accent); }
-  .header p { color: var(--text2); margin-top: 6px; font-size: 14px; }
+/* ---- Entry Page ---- */
+.entry-wrap{max-width:780px;margin:0 auto;padding:56px 0 48px;position:relative}
+.entry-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.entry-bg::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:140%;height:70%;background:radial-gradient(ellipse at 50% 30%,rgba(255,140,66,.06) 0%,rgba(78,205,196,.04) 35%,transparent 65%)}
+.entry-bg::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30%;background:linear-gradient(to top,var(--bg),transparent)}
 
-  .nav { display: flex; gap: 4px; padding: 16px 24px 0; }
-  .nav button { background: transparent; border: none; color: var(--text2); font-size: 14px; padding: 8px 16px; cursor: pointer; border-radius: 8px 8px 0 0; transition: all .15s; }
-  .nav button:hover { color: var(--text); background: var(--surface); }
-  .nav button.active { color: var(--accent); background: var(--surface); }
+.entry-hero{text-align:center;margin-bottom:48px;position:relative;z-index:1}
+.entry-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-glow);border:1px solid rgba(126,220,212,.22);border-radius:999px;padding:4px 14px;margin-bottom:18px}
+.entry-badge .pulse{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.entry-title{font-size:44px;font-weight:900;letter-spacing:0;line-height:1.12;margin-bottom:12px;color:#fff;background:linear-gradient(135deg,#fff 0%,#eaf7f5 35%,var(--accent-soft) 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative}
+.entry-title::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:60px;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+.entry-subtitle{color:var(--text-mid);font-size:14px;font-weight:400;line-height:1.6;margin-top:16px}
+.entry-subtitle strong{color:var(--text-soft);font-weight:600}
 
-  .content { padding: 20px 24px 40px; }
-  .panel { display: none; }
-  .panel.active { display: block; }
+.entry-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:32px;position:relative;z-index:1}
+.entry-card{position:relative;background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:28px 22px;cursor:pointer;text-align:left;transition:all .25s cubic-bezier(.22,1,.36,1);color:inherit;text-decoration:none;display:block;font:inherit;overflow:hidden}
+.entry-card::before{content:'';position:absolute;inset:0;border-radius:12px;opacity:0;transition:opacity .3s}
+.entry-card:first-child::before{background:radial-gradient(ellipse at 20% 80%,rgba(78,205,196,.08),transparent 60%)}
+.entry-card:last-child::before{background:radial-gradient(ellipse at 80% 80%,rgba(255,140,66,.08),transparent 60%)}
+.entry-card:hover::before{opacity:1}
+.entry-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.25);border-color:rgba(78,205,196,.25)}
+.entry-card.dimmed{opacity:.35;pointer-events:none;cursor:default}
+.entry-card.game:hover{border-color:rgba(255,140,66,.3)}
+.entry-card-icon{font-size:28px;margin-bottom:10px;display:block}
+.entry-card-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:5px}
+.entry-card-desc{font-size:12px;color:var(--text-mid);line-height:1.7}
+.entry-card-arrow{position:absolute;top:24px;right:18px;width:18px;height:18px;border-right:2px solid var(--text-mid);border-bottom:2px solid var(--text-mid);transform:rotate(-45deg);opacity:.3;transition:all .25s}
+.entry-card:hover .entry-card-arrow{opacity:.7;transform:rotate(-45deg) translate(2px,-2px);border-color:var(--accent)}
+.entry-card.game:hover .entry-card-arrow{border-color:var(--warm)}
+.entry-card.dimmed{opacity:.4;cursor:default;pointer-events:none}
+.entry-card.dimmed:hover{transform:none;box-shadow:none;border-color:rgba(255,255,255,.08)}
 
-  /* Stage overview */
-  .pipeline { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
-  .stage { flex: 1; min-width: 120px; padding: 14px 12px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border); text-align: center; font-size: 13px; }
-  .stage .num { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
-  .stage .label { font-weight: 600; }
-  .stage.done { border-color: var(--green); }
-  .stage.done .label { color: var(--green); }
-  .stage.current { border-color: var(--accent); background: linear-gradient(135deg, var(--surface), rgba(108,140,255,.08)); }
-  .stage.current .label { color: var(--accent); }
-  .stage.todo { opacity: .5; }
+.entry-panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;position:relative;z-index:1}
+.entry-panel{background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px 22px}
+.entry-panel h3{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-mid);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.entry-panel h3::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
 
-  /* Doc cards */
-  .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
-  .doc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: all .15s; }
-  .doc-card:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .doc-card .title { font-weight: 600; font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-  .doc-card .desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
-  .doc-card .meta { margin-top: 10px; display: flex; gap: 8px; align-items: center; font-size: 11px; }
+.ms-item{display:flex;gap:8px;margin-bottom:7px;align-items:flex-start;transition:opacity .15s}
+.ms-item:hover{opacity:.85}
+.ms-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px;box-shadow:0 0 6px rgba(78,205,196,.3)}
+.ms-dot.wip{background:var(--warm);box-shadow:0 0 6px rgba(255,140,66,.4);animation:pulse 2s ease-in-out infinite}
+.ms-date{font-size:10px;color:var(--text-mid);white-space:nowrap;min-width:40px;padding-top:1px;font-variant-numeric:tabular-nums}
+.ms-text{font-size:11.5px;color:var(--text-soft);line-height:1.5}
+.ms-text a{color:var(--accent);text-decoration:none;font-weight:600;transition:color .15s}
+.ms-text a:hover{color:var(--accent-soft);text-decoration:underline}
 
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-  .badge.active { background: rgba(74,222,128,.15); color: var(--green); }
-  .badge.pending { background: rgba(251,191,36,.15); color: var(--yellow); }
-  .badge.draft { background: rgba(139,143,168,.15); color: var(--text2); }
-  .badge.archived { background: rgba(139,143,168,.1); color: var(--text2); }
-  .badge.risk-low { background: rgba(74,222,128,.1); color: var(--green); }
-  .badge.risk-med { background: rgba(251,191,36,.15); color: var(--yellow); }
-  .badge.risk-high { background: rgba(248,113,113,.15); color: var(--red); }
+.ver-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.ver-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;background:rgba(255,255,255,.06);color:var(--text-mid);white-space:nowrap;flex-shrink:0;margin-top:0;font-variant-numeric:tabular-nums}
+.ver-badge.cur{background:rgba(78,205,196,.15);color:var(--accent);border:1px solid rgba(78,205,196,.2)}
+.ver-text{font-size:11.5px;color:var(--text-soft);line-height:1.5}
+.ver-meta{font-size:10px;color:var(--text-mid);margin-top:2px;display:block}
 
-  /* Detail panel */
-  .detail-view { display: none; }
-  .detail-view.active { display: block; }
-  .back-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; margin-bottom: 16px; }
-  .back-btn:hover { border-color: var(--accent); }
-  .detail-content { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; max-height: 70vh; overflow-y: auto; }
-  .detail-content h1 { font-size: 20px; margin-bottom: 16px; }
-  .detail-content h2 { font-size: 16px; margin: 20px 0 10px; color: var(--accent); }
-  .detail-content h3 { font-size: 14px; margin: 14px 0 6px; }
-  .detail-content p { font-size: 13px; color: var(--text2); margin: 6px 0; }
-  .detail-content ul { padding-left: 20px; font-size: 13px; color: var(--text2); }
-  .detail-content li { margin: 4px 0; }
-  .detail-content table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
-  .detail-content th, .detail-content td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
-  .detail-content th { background: var(--surface2); color: var(--text); font-weight: 600; }
-  .detail-content td { color: var(--text2); }
-  .detail-content code { background: var(--surface2); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
-  .detail-content pre { background: var(--surface2); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; margin: 8px 0; }
-  .detail-content strong { color: var(--text); }
-  .detail-content blockquote { border-left: 3px solid var(--accent); padding-left: 12px; margin: 8px 0; color: var(--text2); font-style: italic; }
+/* ---- Home Page ---- */
+h1{font-family:var(--font-display);font-size:28px;margin-bottom:8px;color:#fff;background:linear-gradient(135deg,#fff 0%,#dff6f3 55%,var(--accent) 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:var(--text-mid);margin-bottom:32px;font-size:14px}
+.stage{margin-bottom:28px}
+.stage-header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:8px;border:1px solid transparent;cursor:pointer;user-select:none;transition:background .2s,border-color .2s,box-shadow .2s}
+.stage-header:hover{background:rgba(126,220,212,.06);border-color:var(--line)}
+.stage-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:bold;flex-shrink:0}
+.stage-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff}
+.stage-desc{font-size:12px;color:var(--text-mid);flex:1}
+.stage-count{font-size:12px;color:var(--text-soft);padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.05)}
+.stage-arrow{width:11px;height:11px;border-right:2px solid var(--text-mid);border-bottom:2px solid var(--text-mid);transform:rotate(45deg);transition:transform .2s,border-color .2s;flex-shrink:0}
+.stage-header:hover .stage-arrow{border-color:var(--accent-soft)}
+.stage.collapsed .stage-arrow{transform:rotate(-45deg)}
+.s1 .stage-num{background:rgba(171,71,188,.25);color:#ce93d8}
+.s2 .stage-num{background:rgba(255,183,77,.25);color:#ffb74d}
+.s3 .stage-num{background:rgba(76,175,80,.25);color:#81c784}
+.s4 .stage-num{background:rgba(78,205,196,.24);color:var(--accent)}
+.s5 .stage-num{background:rgba(239,83,80,.25);color:#ef9a9a}
+.s6 .stage-num{background:rgba(38,166,154,.25);color:#80cbc4}
+.s7 .stage-num{background:rgba(244,143,177,.25);color:#f8bbd0}
+.file-list{display:grid;gap:10px;padding-left:40px;padding-top:12px;overflow:hidden;max-height:none;opacity:1;transition:max-height .25s ease,opacity .2s ease,padding-top .2s ease}
+.stage.collapsed .file-list{max-height:0;opacity:0;padding-top:0}
+.file-card{display:block;width:100%;background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:14px 18px;cursor:pointer;transition:all .2s;text-align:left;color:inherit;font:inherit}
+.file-card:hover{background:rgba(126,220,212,.08);border-color:var(--line-strong);transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.file-card h3{font-size:14px;color:var(--accent);margin-bottom:2px}
+.file-card p{font-size:12px;color:var(--text-mid)}
+.file-card .tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.tag-game{background:rgba(76,175,80,.2);color:#81c784}
+.tag-doc{background:rgba(255,183,77,.2);color:#ffb74d}
+.tag-plan{background:rgba(78,205,196,.2);color:var(--accent)}
+.tag-prd{background:rgba(171,71,188,.2);color:#ce93d8}
 
-  /* Key decisions */
-  .decision { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
-  .decision .q { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-  .decision .a { font-size: 12px; color: var(--text2); }
+#md-viewer{display:none}
+#md-viewer.active{display:block}
+.viewer-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px 14px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+.btn-back{background:linear-gradient(135deg,var(--accent),var(--accent-strong));border:1px solid rgba(126,220,212,.45);color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:transform .15s,box-shadow .15s,filter .15s}
+.btn-back:hover{filter:brightness(1.06);box-shadow:0 10px 22px rgba(78,205,196,.18)}
+.btn-back:active{transform:scale(.96)}
+.viewer-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--accent);letter-spacing:.01em}
+.viewer-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px;align-items:start}
+.viewer-main{min-width:0}
+.toc-panel{position:sticky;top:20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 12px;box-shadow:0 14px 28px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.03)}
+.toc-title{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft);margin-bottom:10px;padding:0 6px}
+.toc-list{display:grid;gap:6px}
+.toc-item{display:block;width:100%;border:none;background:none;color:#b0bec5;text-align:left;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;line-height:1.4;transition:background .2s,color .2s}
+.toc-item:hover{background:rgba(78,205,196,.12);color:#e9fffd}
+.toc-item.lv1{padding-left:8px;font-weight:600;color:var(--text)}
+.toc-item.lv2{padding-left:18px}
+.toc-item.lv3{padding-left:28px;font-size:12px}
+.toc-empty{font-size:12px;color:var(--text-mid);line-height:1.6}
+.md-body{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:34px;line-height:1.82;font-size:15px;color:var(--text-soft);box-shadow:0 20px 40px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.03)}
+.md-body h1{font-family:var(--font-display);font-size:30px;line-height:1.22;margin:26px 0 14px;color:var(--accent);-webkit-text-fill-color:unset}
+.md-body h2{font-family:var(--font-display);font-size:24px;line-height:1.28;margin:24px 0 12px;color:var(--accent-soft);-webkit-text-fill-color:unset;padding-top:6px;border-top:1px solid rgba(255,255,255,.06)}
+.md-body h3{font-family:var(--font-display);font-size:19px;line-height:1.34;margin:18px 0 10px;color:#c7f4ef;-webkit-text-fill-color:unset}
+.md-body h1,.md-body h2,.md-body h3{scroll-margin-top:24px}
+.md-body h1:first-child{margin-top:0}
+.md-body h4{font-family:var(--font-display);font-size:16px;margin:16px 0 8px;color:#d8fbf7}
+.md-body p{margin:10px 0;max-width:78ch}
+.md-body ul,.md-body ol{margin:10px 0;padding-left:24px;max-width:78ch}
+.md-body li{margin:6px 0}
+.md-body code{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.13);padding:1px 6px;border-radius:5px;font-size:13px;font-family:"Cascadia Code",Consolas,monospace;color:#e8f4ff}
+.md-body pre{background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px;overflow-x:auto;margin:14px 0}
+.md-body pre code{background:none;padding:0}
+.md-body table{display:block;max-width:100%;overflow:auto;border-collapse:collapse;margin:14px 0;border-radius:10px;border:1px solid rgba(255,255,255,.12)}
+.md-body th,.md-body td{border:1px solid rgba(255,255,255,.12);padding:9px 12px;text-align:left;white-space:nowrap}
+.md-body th{background:rgba(255,255,255,.06);color:#e9f3f9}
+.md-body blockquote{border-left:3px solid var(--accent);background:rgba(78,205,196,.07);padding:10px 14px 10px 16px;border-radius:0 8px 8px 0;margin:14px 0;color:#a9bac6;max-width:78ch}
+.md-body a{color:var(--accent);text-decoration:none}
+.md-body a:hover{text-decoration:underline}
+.md-body hr{border:none;border-top:1px solid rgba(255,255,255,.1);margin:20px 0}
+.md-body img{max-width:100%;border-radius:10px;border:1px solid rgba(255,255,255,.08)}
+.md-body strong{color:#fff}
 
-  /* Risk matrix */
-  .risk-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .risk-item:last-child { border-bottom: none; }
-  .risk-item .name { font-size: 13px; font-weight: 600; min-width: 140px; }
-  .risk-item .mitigation { font-size: 12px; color: var(--text2); flex: 1; }
+.stage-header:focus-visible,
+.file-card:focus-visible,
+.btn-back:focus-visible,
+.toc-item:focus-visible,
+a:focus-visible,
+.entry-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px;box-shadow:0 0 0 4px var(--accent-glow)}
 
-  /* Responsive */
-  @media (max-width: 640px) {
-    .doc-grid { grid-template-columns: 1fr; }
-    .pipeline { flex-direction: column; }
-    .stage { min-width: auto; }
-  }
+.ss-item{margin-bottom:2px}
+.ss-head{display:flex;align-items:center;gap:7px;cursor:pointer;padding:5px 0 3px;user-select:none}
+.ss-head:hover h4{color:var(--accent-soft)}
+.ss-head h4{font-size:13px;color:var(--text-soft);letter-spacing:.04em;margin:0;transition:color .15s}
+.ss-arr{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;flex-shrink:0;color:var(--text-mid);margin-top:0;transition:color .2s}
+.ss-arr::before{content:'▼';font-size:11px;line-height:1}
+.ss-item.collapsed .ss-arr::before{content:'▶'}
+.ss-head:hover .ss-arr{color:var(--accent-soft)}
+.ss-body{overflow:hidden;transition:max-height .25s ease,opacity .2s ease}
+.ss-item.collapsed .ss-body{opacity:0}
+.ss-item{margin-bottom:10px}
+.kpi-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26);font-size:12px;font-weight:700;color:#fff;letter-spacing:.01em;vertical-align:baseline}
+.kpi-chip.accent{background:rgba(78,205,196,.2);border-color:rgba(126,220,212,.45)}
+.kpi-chip.growth{background:rgba(129,199,132,.2);border-color:rgba(129,199,132,.45)}
+.kpi-chip.user{background:rgba(255,183,77,.2);border-color:rgba(255,183,77,.45)}
+.summary-shell{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.032));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px 22px 18px;margin-top:4px;box-shadow:0 20px 40px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.04)}
+.summary-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 20px;align-items:start;padding:2px 0 14px;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,.06)}
+.summary-kicker{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-soft);margin-bottom:6px}
+.summary-note{grid-column:1 / -1;max-width:none;font-size:12px;line-height:1.68;letter-spacing:.01em;color:var(--text-mid);white-space:nowrap}
+.summary-stats{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-items:center;flex:0 0 auto}
+.summary-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.summary-panel{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 14px 12px;min-width:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+.summary-panel.wide{grid-column:1 / -1}
+.summary-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.summary-panel-title{font-family:var(--font-display);font-size:13px;font-weight:700;color:#fff;letter-spacing:.01em;display:flex;align-items:center;gap:8px}
+.summary-panel-title .index{width:22px;height:22px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(78,205,196,.14);border:1px solid rgba(126,220,212,.24);color:var(--accent);font-size:11px;font-weight:800;flex-shrink:0}
+.summary-panel-sub{font-size:11px;line-height:1.62;letter-spacing:.01em;color:var(--text-mid);max-width:20ch;text-align:right}
+.summary-panel ul{padding-left:16px;margin:0}
+.summary-panel li{margin-bottom:7px}
+.summary-panel li:last-child{margin-bottom:0}
+.summary-actionbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}
+.summary-action{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;background:linear-gradient(180deg,rgba(78,205,196,.08),rgba(78,205,196,.03));border:1px solid rgba(126,220,212,.16)}
+.summary-action-badge{display:inline-flex;align-items:center;justify-content:center;min-width:66px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.02em;color:#fff;flex-shrink:0}
+.summary-action-badge.must{background:rgba(78,205,196,.14);border-color:rgba(126,220,212,.28);color:#d8fffb}
+.summary-action-badge.verify{background:rgba(255,183,77,.14);border-color:rgba(255,183,77,.3);color:#ffe1b0}
+.summary-action-badge.should{background:rgba(129,199,132,.14);border-color:rgba(129,199,132,.28);color:#d9f7db}
+.summary-action-badge.later{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#d8e0e8}
+.summary-action-copy{display:grid;gap:4px;min-width:0}
+.summary-action strong{font-size:12px;color:#fff;letter-spacing:.01em}
+.summary-action span{font-size:11px;color:var(--text-mid);line-height:1.58;letter-spacing:.01em}
+
+#home-main,.stage,.summary-shell,.summary-grid,.summary-panel,.summary-action{min-width:0}
+.summary-panel li,.summary-action span{overflow-wrap:anywhere;word-break:break-word}
+.summary-panel li{letter-spacing:.01em}
+
+@media(max-width:1100px){
+  .summary-grid{grid-template-columns:1fr}
+  .summary-panel-sub{text-align:left;max-width:none}
+  .summary-actionbar{grid-template-columns:1fr}
+}
+
+#home-grid{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:24px;align-items:start}
+#home-right-toc{position:sticky;top:20px;max-height:calc(100vh - 40px);overflow-y:auto;scrollbar-width:thin}
+.rtoc-inner{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px 0}
+.rtoc-title{font-size:10px;color:var(--text-mid);letter-spacing:.1em;text-transform:uppercase;padding:0 14px 10px}
+.rtoc-l1{display:block;width:100%;background:none;border:none;padding:7px 14px;font-size:12px;font-weight:600;color:var(--text);text-align:left;cursor:pointer;transition:background .15s,color .15s;line-height:1.3}
+.rtoc-l1:hover{background:rgba(78,205,196,.08);color:var(--accent)}
+.rtoc-l2{display:block;width:100%;background:none;border:none;padding:4px 14px 4px 24px;font-size:11px;color:var(--text-mid);text-align:left;cursor:pointer;transition:background .15s,color .15s;line-height:1.3}
+.rtoc-l2:hover{background:rgba(255,255,255,.04);color:var(--text-soft)}
+.rtoc-sep{height:1px;background:rgba(255,255,255,.06);margin:6px 0}
+
+@media(max-width:600px){
+  .entry-cards,.entry-panels{grid-template-columns:1fr}
+  .container{padding:24px 16px}
+  .file-list{padding-left:0}
+  .viewer-layout{grid-template-columns:1fr}
+  .toc-panel{position:static;order:-1}
+  .viewer-header{padding:10px 12px}
+  .viewer-title{font-size:16px}
+  .md-body{padding:22px 18px;font-size:14px}
+  .md-body h1{font-size:25px}
+  .md-body h2{font-size:21px}
+  .md-body h3{font-size:18px}
+  .entry-title{font-size:32px}
+}
+@media(max-width:760px){
+  #home-grid{grid-template-columns:1fr}
+  #home-right-toc{position:static;order:-1}
+  .summary-shell{padding:16px 14px 14px}
+  .summary-hero{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding-bottom:10px;margin-bottom:10px}
+  .summary-note{max-width:none;white-space:normal}
+  .summary-stats{justify-content:flex-start;gap:6px}
+  .summary-stats .kpi-chip{font-size:11px;padding:1px 7px}
+  .summary-panel{padding:12px 12px 10px}
+}
 </style>
 </head>
 <body>
-
-<div class="header">
-  <h1>做过确认 <span>· 项目文档中心</span></h1>
-  <p>"Did I?" 确认工具 — 1秒确认，安心走人</p>
-</div>
-
-<div class="nav">
-  <button class="active" onclick="showPanel('overview')">总览</button>
-  <button onclick="showPanel('stage1')">Stage 1 调研</button>
-  <button onclick="showPanel('decisions')">关键决策</button>
-  <button onclick="showPanel('risks')">风险矩阵</button>
-</div>
-
-<div class="content">
-
-  <!-- Overview Panel -->
-  <div id="panel-overview" class="panel active">
-    <div class="pipeline">
-      <div class="stage done"><div class="num">Stage 1</div><div class="label">市场调研</div></div>
-      <div class="stage current"><div class="num">Stage 2</div><div class="label">产品定义</div></div>
-      <div class="stage todo"><div class="num">Stage 3</div><div class="label">设计</div></div>
-      <div class="stage todo"><div class="num">Stage 4</div><div class="label">架构规划</div></div>
-      <div class="stage todo"><div class="num">Stage 5</div><div class="label">原型开发</div></div>
-    </div>
-
-    <div class="doc-grid">
-      <div class="doc-card" onclick="showDoc('market')">
-        <div class="title">📊 市场竞品分析</div>
-        <div class="desc">12款直接竞品、中国市场空白、用户规模估算、平台能力对比、三阶段路线图</div>
-        <div class="meta"><span class="badge active">活跃</span><span>01-research/</span></div>
+<div class="container">
+  <!-- Entry Landing -->
+  <div id="entry">
+    <div class="entry-bg"></div>
+    <div class="entry-wrap">
+      <div class="entry-hero">
+        <div class="entry-badge"><span class="pulse"></span>STAGE 1 · RESEARCH</div>
+        <h1 class="entry-title">过门不忘</h1>
+        <p class="entry-subtitle">告别"门口"效应，大脑重启前轻松留痕，安心转身向前走</p>
       </div>
-      <div class="doc-card" onclick="showDoc('devil')">
-        <div class="title">😈 反方论证</div>
-        <div class="desc">6大质疑：需求频次不足、替代方案多、扩展失焦、AI整理伪需求、付费天花板、小程序体验受限</div>
-        <div class="meta"><span class="badge active">活跃</span><span>01-research/</span></div>
+
+      <div class="entry-cards">
+        <button class="entry-card" onclick="enterDocs()">
+          <span class="entry-card-icon">📋</span>
+          <div class="entry-card-title">项目过程跟踪</div>
+          <div class="entry-card-desc">产品调研 · 规格设计 · 视觉方案<br>技术架构 · 功能开发 · 共 7 个阶段</div>
+          <span class="entry-card-arrow"></span>
+        </button>
+        <button class="entry-card dimmed">
+          <span class="entry-card-icon">📱</span>
+          <div class="entry-card-title">Stage 1 调研成果</div>
+          <div class="entry-card-desc">12款竞品分析 · 中国市场空白<br>3000万潜在用户 · 门口效应科学背书</div>
+          <span class="entry-card-arrow"></span>
+        </button>
+        <button class="entry-card dimmed">
+          <span class="entry-card-icon">🔬</span>
+          <div class="entry-card-title">门口效应</div>
+          <div class="entry-card-desc">空间切换触发大脑上下文重置<br>过门不忘，一秒确认</div>
+        </button>
       </div>
-      <div class="doc-card" onclick="showDoc('docmap')">
-        <div class="title">🗺️ 文档关系图</div>
-        <div class="desc">文档依赖关系、变更影响链、引用规则</div>
-        <div class="meta"><span class="badge active">活跃</span><span>docs/</span></div>
-      </div>
-      <div class="doc-card" style="opacity:.4">
-        <div class="title">📋 产品定位 PRD</div>
-        <div class="desc">待创建 — Stage 2 产出</div>
-        <div class="meta"><span class="badge draft">待创建</span><span>02-product/</span></div>
-      </div>
-      <div class="doc-card" style="opacity:.4">
-        <div class="title">📐 产品规格书</div>
-        <div class="desc">待创建 — Stage 2 产出</div>
-        <div class="meta"><span class="badge draft">待创建</span><span>02-product/</span></div>
-      </div>
-      <div class="doc-card" style="opacity:.4">
-        <div class="title">🛠️ MVP Blueprint</div>
-        <div class="desc">待创建 — Stage 4 产出</div>
-        <div class="meta"><span class="badge draft">待创建</span><span>04-plan/</span></div>
+
+      <div class="entry-panels">
+        <div class="entry-panel">
+          <h3>里程碑</h3>
+          <div class="ms-item"><span class="ms-dot wip"></span><span class="ms-date">05-27</span><span class="ms-text">项目启动，市场调研完成</span></div>
+          <div class="ms-item"><span class="ms-dot wip"></span><span class="ms-date">05-27</span><span class="ms-text">产品定义 & 设计方向完成</span></div>
+        </div>
+        <div class="entry-panel">
+          <h3>阶段规划</h3>
+          <div class="ver-item"><span class="ver-badge cur">Phase 1</span><span class="ver-text">小程序MVP验证需求 <span style="color:var(--accent);font-size:10px">● 当前</span><span class="ver-meta">微信小程序 · 今日确认面板 + 6项验证指标</span></span></div>
+          <div class="ver-item"><span class="ver-badge">Phase 2</span><span class="ver-text">原生App锁屏Widget体验升级<span class="ver-meta">iOS/原生 · 锁屏快捷确认</span></span></div>
+          <div class="ver-item"><span class="ver-badge">Phase 3</span><span class="ver-text">AI拍照识别+语音速记+家庭共享<span class="ver-meta">扩展 · AI辅助 · 家庭场景</span></span></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Stage 1 Panel -->
-  <div id="panel-stage1" class="panel">
-    <div class="doc-grid">
-      <div class="doc-card" onclick="showDoc('market')">
-        <div class="title">📊 市场竞品分析报告</div>
-        <div class="desc">完整竞品矩阵、用户规模、市场数据、平台能力分析、三阶段建议</div>
-        <div class="meta"><span class="badge active">活跃</span></div>
+  <div id="home" style="display:none">
+    <div style="margin-bottom:18px">
+      <button onclick="goEntry()" style="background:none;border:none;padding:0;font-size:13px;color:var(--text-mid);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:color .15s" onmouseover="this.style.color='var(--accent-soft)'" onmouseout="this.style.color='var(--text-mid)'">← 返回入口</button>
+    </div>
+    <h1>过门不忘</h1>
+    <p class="subtitle">"Did I?" 确认工具 · 门口效应 · 按产品开发流程组织的项目文档导航 · <a href="#" onclick="openFile({name:'docs/document-map.md',label:'文档关系图',desc:'',tag:'导航',tagClass:'tag-plan',type:'md'});return false" style="color:var(--accent)">查看文档关系图</a></p>
+
+    <nav id="stages-toc" style="margin:0 0 28px;background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px 20px">
+      <div style="font-size:11px;color:var(--text-mid);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">目录</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">
+        <button onclick="scrollToStage('stage1-wrap')" style="display:flex;align-items:center;gap:9px;background:none;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left;transition:background .15s;width:100%" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='none'"><span style="width:22px;height:22px;border-radius:50%;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">1</span><span style="font-size:13px;color:var(--text-soft)">市场调研 &amp; 竞品分析</span></button>
+        <button onclick="scrollToStage('stage2-wrap')" style="display:flex;align-items:center;gap:9px;background:none;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left;transition:background .15s;width:100%" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='none'"><span style="width:22px;height:22px;border-radius:50%;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">2</span><span style="font-size:13px;color:var(--text-soft)">产品定义 &amp; PRD</span></button>
+        <button onclick="scrollToStage('stage3-wrap')" style="display:flex;align-items:center;gap:9px;background:none;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left;transition:background .15s;width:100%" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='none'"><span style="width:22px;height:22px;border-radius:50%;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">3</span><span style="font-size:13px;color:var(--text-soft)">设计方向 &amp; 体验定义</span></button>
+        <button onclick="scrollToStage('stage4-wrap')" style="display:flex;align-items:center;gap:9px;background:none;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left;transition:background .15s;width:100%" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='none'"><span style="width:22px;height:22px;border-radius:50%;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">4</span><span style="font-size:13px;color:var(--text-soft)">架构规划 &amp; 技术方案</span></button>
+        <button onclick="scrollToStage('stage5-wrap')" style="display:flex;align-items:center;gap:9px;background:none;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left;transition:background .15s;width:100%" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='none'"><span style="width:22px;height:22px;border-radius:50%;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">5</span><span style="font-size:13px;color:var(--text-soft)">功能开发（迭代循环）</span></button>
+        <button onclick="scrollToStage('stage6-wrap')" style="display:flex;align-items:center;gap:9px;background:none;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left;transition:background .15s;width:100%" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='none'"><span style="width:22px;height:22px;border-radius:50%;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">6</span><span style="font-size:13px;color:var(--text-soft)">质量保障</span></button>
+        <button onclick="scrollToStage('stage7-wrap')" style="display:flex;align-items:center;gap:9px;background:none;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left;transition:background .15s;width:100%" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='none'"><span style="width:22px;height:22px;border-radius:50%;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0">7</span><span style="font-size:13px;color:var(--text-soft)">发布 &amp; 运营</span></button>
       </div>
-      <div class="doc-card" onclick="showDoc('devil')">
-        <div class="title">😈 反方论证分析</div>
-        <div class="desc">6大质疑逐一论证，总体风险评级，MVP必须回答的4个问题</div>
-        <div class="meta"><span class="badge active">活跃</span></div>
+    </nav>
+
+    <div id="home-grid">
+    <div id="home-main">
+    <div class="stage s1" id="stage1-wrap">
+      <div class="stage-header" role="button" tabindex="0" aria-expanded="true">
+        <span class="stage-num">1</span>
+        <span class="stage-title">市场调研 & 竞品分析</span>
+        <span class="stage-desc">竞品格局 · 用户洞察 · 市场机会</span>
+        <span class="stage-arrow" aria-hidden="true"></span>
+      </div>
+      <div class="file-list" id="stage1" style="display:none"></div>
+      <div id="market-summary" style="padding:0 0 16px 40px;opacity:0;max-height:0;overflow:hidden;transition:opacity .3s,max-height .35s ease">
+        <div class="summary-shell">
+          <div class="summary-hero">
+            <div>
+              <div class="summary-kicker">Research Snapshot</div>
+              <h3 style="font-size:15px;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:6px">市场调研结论（可执行版）</h3>
+              <div class="summary-note">把市场信号、竞品结论和 MVP 优先级放在同一页，方便直接决定下一步做什么。</div>
+            </div>
+            <div class="summary-stats" aria-label="summary highlights">
+              <span class="kpi-chip accent">🌍 12 款竞品</span>
+              <span class="kpi-chip growth">🇨🇳 市场空白</span>
+              <span class="kpi-chip user">🔒 锁车+💊服药</span>
+            </div>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-panel">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">1</span>市场与用户信号</div>
+                <div class="summary-panel-sub">规模、画像、变现、获客</div>
+              </div>
+              <ul style="font-size:12px;color:var(--text-soft);line-height:1.9;list-style:disc">
+                <li><strong style="color:var(--text)">竞品格局</strong>：全球 <span class="kpi-chip accent">🌍 12 款</span> 直接竞品，全部来自海外，<span class="kpi-chip growth">🇨🇳 中国市场为零</span></li>
+                <li><strong style="color:var(--text)">锚点用户</strong>：<span class="kpi-chip user">🔒 通勤锁车族</span>（3.5亿电动车，每日1-2次）+ <span class="kpi-chip user">💊 规律服药人群</span>（2亿慢病患者，每日1-3次）— 高频场景撑留存</li>
+                <li><strong style="color:var(--text)">智能硬件启示</strong>：智能门锁/EV 车 App 证明——真正消除焦虑的是"看到状态"，不是"记录操作"</li>
+                <li><strong style="color:var(--text)">平台现实</strong>：小程序无法做锁屏 Widget（6步 vs 原生1步），核心体验需原生 App</li>
+              </ul>
+            </div>
+            <div class="summary-panel">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">2</span>竞品结论与关键风险</div>
+                <div class="summary-panel-sub">差异化、风险判断</div>
+              </div>
+              <ul style="font-size:12px;color:var(--text-soft);line-height:1.9;list-style:disc">
+                <li><strong style="color:#ce93d8">Did I Do?</strong>：最完整（Widget + 拍照 + 家人共享），定位 ADHD & OCD</li>
+                <li><strong style="color:#ffb74d">did I?</strong>：GPS 验证是最独特差异化，但中国用户隐私敏感</li>
+                <li><strong style="color:#ef5350">🔴 最大风险</strong>："主动记录"不如"被动查看"——产品承诺安心，却需用户主动操作才能获得安心</li>
+                <li><strong style="color:var(--accent)">缓解措施</strong>：首页必须是确认面板而非空列表；操作步骤压到最少；视觉强调"已确认 ✅"状态</li>
+              </ul>
+            </div>
+            <div class="summary-panel wide">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">3</span>MVP 优先级</div>
+                <div class="summary-panel-sub">下个迭代要先做什么</div>
+              </div>
+              <div class="summary-actionbar">
+                <div class="summary-action"><span class="summary-action-badge must">必须做</span><div class="summary-action-copy"><span>微信小程序 MVP：今日确认面板 + 拍照/点按钮确认 + 时间戳 + 历史记录。锚定锁车、服药高频场景。</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge verify">优先验证</span><div class="summary-action-copy"><span>5 项指标：次日留存 > 40% · 7日留存 > 25% · 确认频次 > 3次/周 · 拍照占比 > 30% · NPS > 30</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge should">应做</span><div class="summary-action-copy"><span>视觉强调"已确认 ✅"状态而非"去确认"动作；Android 桌面快捷方式缩短路径。</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge later">暂缓</span><div class="summary-action-copy"><span>AI 整理、家人共享、GPS 离家提醒、语音口喷，等核心确认场景留存验证后再加。</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text-mid)">相关文档：</span><button onclick="openFile(stages.stage1[0])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">市场竞品分析报告</button><span style="color:var(--text-mid);font-size:10px">·</span><button onclick="openFile(stages.stage1[1])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">反方论证分析</button></div>
+        </div>
       </div>
     </div>
 
-    <h3 style="margin:24px 0 12px;font-size:15px;">Stage 1 关键发现摘要</h3>
-    <div class="decision">
-      <div class="q">✅ 中国市场没有"做过确认"类 App</div>
-      <div class="a">12款直接竞品全部来自海外（美/欧/日），中国市场仅有吃药提醒的垂直场景</div>
+    <div class="stage s2" id="stage2-wrap">
+      <div class="stage-header" role="button" tabindex="0" aria-expanded="true"><span class="stage-num">2</span><span class="stage-title">产品定义 & PRD</span><span class="stage-desc">产品定位 · 功能规格 · PRD</span><span class="stage-arrow" aria-hidden="true"></span></div>
+      <div class="file-list" id="stage2" style="display:none"></div>
+      <div id="product-summary" style="padding:0 0 16px 40px;opacity:0;max-height:0;overflow:hidden;transition:opacity .3s,max-height .35s ease">
+        <div class="summary-shell">
+          <div class="summary-hero">
+            <div>
+              <div class="summary-kicker">Product Definition</div>
+              <h3 style="font-size:15px;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:6px">产品定义结论（可执行版）</h3>
+              <div class="summary-note">定位、功能边界和验证标准，直接决定开发做什么、不做什么。</div>
+            </div>
+            <div class="summary-stats" aria-label="summary highlights">
+              <span class="kpi-chip accent">1秒确认</span>
+              <span class="kpi-chip growth">安心转身</span>
+              <span class="kpi-chip user">5项功能</span>
+            </div>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-panel">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">1</span>定位与锚点</div>
+                <div class="summary-panel-sub">品类、差异、用户</div>
+              </div>
+              <ul style="font-size:12px;color:var(--text-soft);line-height:1.9;list-style:disc">
+                <li><strong style="color:var(--text)">品类</strong>："Did I?" 确认工具 — 不是待办，不是提醒，是"我做过了"的安心感</li>
+                <li><strong style="color:var(--text)">差异</strong>：确认最快 — 比微信发自己更快，比回去看一眼更省心</li>
+                <li><strong style="color:var(--text)">P0 用户</strong>：<span class="kpi-chip user">🔒 通勤锁车族</span> 每日1-2次 + <span class="kpi-chip user">💊 规律服药人群</span> 每日1-3次</li>
+                <li><strong style="color:var(--text)">P1 用户</strong>：日常确认者 — 关火、锁门、喂宠物等自定义场景</li>
+              </ul>
+            </div>
+            <div class="summary-panel">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">2</span>MVP 功能边界</div>
+                <div class="summary-panel-sub">5项功能 · 7项反目标</div>
+              </div>
+              <ul style="font-size:12px;color:var(--text-soft);line-height:1.9;list-style:disc">
+                <li><strong style="color:var(--accent)">F1 今日确认面板</strong>：首页一眼看到所有事项状态，接近"看到状态"体验</li>
+                <li><strong style="color:var(--accent)">F2 确认操作</strong>：按钮确认(1点击) + 拍照确认(1点击+1拍照)</li>
+                <li><strong style="color:var(--accent)">F3 事项管理</strong>：预设模板(锁车/服药) + 自定义添加 + 拖拽排序</li>
+                <li><strong style="color:var(--text-soft)">F4 历史记录</strong>：按日期查看、按事项筛选、照片缩略图</li>
+                <li><strong style="color:var(--text-soft)">F5 数据存储</strong>：本地优先，无需登录，照片仅存本地</li>
+              </ul>
+            </div>
+            <div class="summary-panel wide">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">3</span>交付里程碑与验证</div>
+                <div class="summary-panel-sub">3个里程碑 · 6项验证指标</div>
+              </div>
+              <div class="summary-actionbar">
+                <div class="summary-action"><span class="summary-action-badge must">M1 核心确认流程</span><div class="summary-action-copy"><span>创建事项 → 一键/拍照确认 → 今日状态面板 → 历史记录</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge verify">M2 高频场景验证</span><div class="summary-action-copy"><span>次日留存 > 40% · 7日留存 > 25% · 确认频次 > 3次/周 · 拍照占比 > 30% · NPS > 30 · 自定义添加率 > 20%</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge later">M3 需求验证决策</span><div class="summary-action-copy"><span>数据达标 → Phase 2 原生 App；不达标 → pivot 或 stop</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text-mid)">相关文档：</span><button onclick="openFile(stages.stage2[0])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">产品规格书</button><span style="color:var(--text-mid);font-size:10px">·</span><button onclick="openFile(stages.stage2[1])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">产品需求文档(PRD)</button></div>
+        </div>
+      </div>
     </div>
-    <div class="decision">
-      <div class="q">✅ 品类刚兴起，没有大厂壁垒</div>
-      <div class="a">竞品基本都是 2025-2026 年上架的小团队/个人开发者产品</div>
+
+    <div class="stage s3" id="stage3-wrap">
+      <div class="stage-header" role="button" tabindex="0" aria-expanded="true"><span class="stage-num">3</span><span class="stage-title">设计方向 & 体验定义</span><span class="stage-desc">交互设计 · UI规范 · 视觉风格</span><span class="stage-arrow" aria-hidden="true"></span></div>
+      <div class="file-list" id="stage3" style="display:none"></div>
+      <div id="design-summary" style="padding:0 0 16px 40px;opacity:0;max-height:0;overflow:hidden;transition:opacity .3s,max-height .35s ease">
+        <div class="summary-shell">
+          <div class="summary-hero">
+            <div>
+              <div class="summary-kicker">Design Direction</div>
+              <h3 style="font-size:15px;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:6px">设计方向结论（可执行版）</h3>
+              <div class="summary-note">交互流程、UI令牌和视觉语言，确保开发实现与设计意图一致。</div>
+            </div>
+            <div class="summary-stats" aria-label="summary highlights">
+              <span class="kpi-chip accent">安心·极简·即时</span>
+              <span class="kpi-chip growth">暗色主题</span>
+              <span class="kpi-chip user">5个页面</span>
+            </div>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-panel">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">1</span>核心交互流程</div>
+                <div class="summary-panel-sub">打开→确认→安心</div>
+              </div>
+              <ul style="font-size:12px;color:var(--text-soft);line-height:1.9;list-style:disc">
+                <li><strong style="color:var(--accent)">核心路径</strong>：打开小程序 → 看到今日确认面板 → 点确认 → 看到 ✅ 安心离开</li>
+                <li><strong style="color:var(--text)">确认操作</strong>：拍照确认(主操作) + 按钮确认(次操作)，底部弹出面板</li>
+                <li><strong style="color:var(--text)">首页即面板</strong>：打开就看到状态，不是空列表等操作</li>
+                <li><strong style="color:var(--text)">首次使用</strong>：自动创建锁车+服药预设，1句话引导，直接操作</li>
+              </ul>
+            </div>
+            <div class="summary-panel">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">2</span>视觉语言关键决策</div>
+                <div class="summary-panel-sub">色彩、状态、情绪</div>
+              </div>
+              <ul style="font-size:12px;color:var(--text-soft);line-height:1.9;list-style:disc">
+                <li><strong style="color:#81c784">绿色 = 安心</strong>：已确认状态，一眼获得"做过了"的安心感</li>
+                <li><strong style="color:#546e7a">灰色 = 中性</strong>：待确认状态，不给压力（不是红色/警告）</li>
+                <li><strong style="color:#4ecdc4">青色 = 行动</strong>：CTA 按钮，引导但不施压</li>
+                <li><strong style="color:#ef5350">不用红色/橙色</strong>：避免制造焦虑——产品目标是缓解焦虑，不是制造紧迫感</li>
+              </ul>
+            </div>
+            <div class="summary-panel wide">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">3</span>页面与导航</div>
+                <div class="summary-panel-sub">5个页面 · 2个tab</div>
+              </div>
+              <div class="summary-actionbar">
+                <div class="summary-action"><span class="summary-action-badge must">P1 今日确认面板</span><div class="summary-action-copy"><span>核心页面：已确认项(绿✅+时间) + 待确认项(灰⏳) + 添加事项入口</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge must">P2 确认操作面板</span><div class="summary-action-copy"><span>底部弹出：拍照确认(主按钮) + 按钮确认(次按钮)，确认后即返回</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge should">P3 添加事项</span><div class="summary-action-copy"><span>名称(必填) + 图标(可选，emoji预设库) + 保存</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge later">P4 历史 · P5 设置</span><div class="summary-action-copy"><span>历史：按日期分组 + 筛选 + 照片缩略图。设置：重置时间 + 默认确认方式</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text-mid)">相关文档：</span><button onclick="openFile(stages.stage3[0])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">交互设计</button><span style="color:var(--text-mid);font-size:10px">·</span><button onclick="openFile(stages.stage3[1])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">UI规格</button><span style="color:var(--text-mid);font-size:10px">·</span><button onclick="openFile(stages.stage3[2])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">视觉风格指南</button></div>
+        </div>
+      </div>
     </div>
-    <div class="decision">
-      <div class="q">⚠️ 痛点真实但频次有限</div>
-      <div class="a">核心付费人群（OCD/ADHD）仅 2-4%，亚临床人群 13.6% 是更大机会</div>
+
+    <div class="stage s4" id="stage4-wrap">
+      <div class="stage-header" role="button" tabindex="0" aria-expanded="true"><span class="stage-num">4</span><span class="stage-title">架构规划 & 技术方案</span><span class="stage-desc">Blueprint · 技术选型 · ADR</span><span class="stage-arrow" aria-hidden="true"></span></div>
+      <div class="file-list" id="stage4" style="display:none"></div>
     </div>
-    <div class="decision">
-      <div class="q">⚠️ 小程序做不到锁屏 Widget</div>
-      <div class="a">iOS 完全不可能，Android 可用桌面快捷方式部分弥补。核心体验需原生 App 兑现</div>
+
+    <div class="stage s5" id="stage5-wrap">
+      <div class="stage-header" role="button" tabindex="0" aria-expanded="true"><span class="stage-num">5</span><span class="stage-title">功能开发（迭代循环）</span><span class="stage-desc">原型实现 · 迭代验证 · 体验打磨</span><span class="stage-arrow" aria-hidden="true"></span></div>
+      <div class="file-list" id="stage5" style="display:none"></div>
+    </div>
+
+    <div class="stage s6" id="stage6-wrap">
+      <div class="stage-header" role="button" tabindex="0" aria-expanded="true"><span class="stage-num">6</span><span class="stage-title">质量保障</span><span class="stage-desc">代码审查 · 安全扫描 · 发布检查</span><span class="stage-arrow" aria-hidden="true"></span></div>
+      <div class="file-list" id="stage6" style="display:none"></div>
+    </div>
+
+    <div class="stage s7" id="stage7-wrap">
+      <div class="stage-header" role="button" tabindex="0" aria-expanded="true"><span class="stage-num">7</span><span class="stage-title">发布 & 运营</span><span class="stage-desc">上线 · 持续优化 · 成本追踪</span><span class="stage-arrow" aria-hidden="true"></span></div>
+      <div class="file-list" id="stage7" style="display:none"></div>
+    </div>
+    </div>
+    <aside id="home-right-toc"><div class="rtoc-inner"></div></aside>
     </div>
   </div>
 
-  <!-- Decisions Panel -->
-  <div id="panel-decisions" class="panel">
-    <h3 style="font-size:15px;margin-bottom:16px;">已确认的关键决策</h3>
-
-    <div class="decision">
-      <div class="q">产品核心定位是什么？</div>
-      <div class="a">"Did I?" 确认工具，不是待办提醒。核心价值：1秒确认，安心走人。中期扩展到即时捕获+AI整理，但锚点始终是"确认最快"</div>
+  <div id="md-viewer">
+    <div class="viewer-header">
+      <button class="btn-back" onclick="goHome()">← 返回首页</button>
+      <span class="viewer-title" id="viewerTitle"></span>
     </div>
-    <div class="decision">
-      <div class="q">MVP 用什么平台？</div>
-      <div class="a">微信小程序。获客成本低，社交传播方便。接受锁屏能力缺失，目标只验证需求是否存在</div>
-    </div>
-    <div class="decision">
-      <div class="q">MVP 验证标准？</div>
-      <div class="a">7日留存 > 30%。不需要验证体验完美，只需验证"确认做过"这个需求成立</div>
-    </div>
-    <div class="decision">
-      <div class="q">中期扩展方向？</div>
-      <div class="a">即时捕获（拍照+语音口喷）→ AI 自动整理。从"确认"延伸，不是换赛道做速记</div>
-    </div>
-    <div class="decision">
-      <div class="q">不做日记/手账</div>
-      <div class="a">日记/手账是坐下来写的场景，和"站着随手记"完全不同。会稀释定位，变成红海竞品</div>
-    </div>
-
-    <h3 style="font-size:15px;margin:24px 0 12px;">待决策</h3>
-    <div class="decision" style="border-color:var(--yellow)">
-      <div class="q">🟡 产品命名</div>
-      <div class="a">暂用"做过确认"，需要在 PRD 阶段确定正式名称</div>
-    </div>
-    <div class="decision" style="border-color:var(--yellow)">
-      <div class="q">🟡 MVP 是否包含拍照确认</div>
-      <div class="a">竞品验证拍照使用率 > 40%，但增加小程序复杂度。待 PRD 阶段决定</div>
-    </div>
-    <div class="decision" style="border-color:var(--yellow)">
-      <div class="q">🟡 MVP 是否包含语音速记</div>
-      <div class="a">反方论证认为使用率可能 < 15%，但它是中期扩展的验证入口。待 PRD 阶段决定</div>
+    <div class="viewer-layout">
+      <div class="viewer-main">
+        <div class="md-body" id="mdBody"></div>
+      </div>
+      <aside class="toc-panel">
+        <div class="toc-title">文档目录</div>
+        <div class="toc-list" id="mdToc">
+          <div class="toc-empty">当前文档没有可导航的标题。</div>
+        </div>
+      </aside>
     </div>
   </div>
-
-  <!-- Risks Panel -->
-  <div id="panel-risks" class="panel">
-    <h3 style="font-size:15px;margin-bottom:16px;">风险矩阵</h3>
-
-    <div class="risk-item">
-      <div class="name">需求频次不足</div>
-      <span class="badge risk-med">🟡 中</span>
-      <div class="mitigation">MVP 验证 7 日留存 > 30%；聚焦 OCD/ADHD 核心人群</div>
-    </div>
-    <div class="risk-item">
-      <div class="name">替代方案太多</div>
-      <span class="badge risk-low">🟢 低</span>
-      <div class="mitigation">做到比"微信发自己"更快，结构化记录可检索</div>
-    </div>
-    <div class="risk-item">
-      <div class="name">扩展后失去焦点</div>
-      <span class="badge risk-med">🟡 中</span>
-      <div class="mitigation">锚点始终是"确认最快"，扩展以"确认"为核心延伸</div>
-    </div>
-    <div class="risk-item">
-      <div class="name">AI 整理伪需求</div>
-      <span class="badge risk-med">🟡 中</span>
-      <div class="mitigation">中期再做，先验证核心确认场景留存</div>
-    </div>
-    <div class="risk-item">
-      <div class="name">付费天花板低</div>
-      <span class="badge risk-med">🟡 中</span>
-      <div class="mitigation">MVP 不设付费，探索家庭共享场景（子女为父母付费）</div>
-    </div>
-    <div class="risk-item">
-      <div class="name">小程序体验受限</div>
-      <span class="badge risk-med">🟡 中</span>
-      <div class="mitigation">Android 桌面快捷方式 + 微信下拉缩短路径；Phase 2 转原生</div>
-    </div>
-  </div>
-</div>
-
-<!-- Detail View (hidden by default) -->
-<div id="detail-view" class="detail-view" style="padding:20px 24px;">
-  <button class="back-btn" onclick="hideDoc()">← 返回</button>
-  <div class="detail-content" id="detail-content"></div>
 </div>
 
 <script>
-const docs = {
-  market: { title: '市场竞品分析报告', file: 'docs/01-research/market-competitive-analysis.md' },
-  devil: { title: '反方论证分析', file: 'docs/01-research/devil-advocate-analysis.md' },
-  docmap: { title: '文档关系图', file: 'docs/document-map.md' }
+const stages = {
+  stage1: [
+    {name:'docs/01-research/market-competitive-analysis.md', label:'市场竞品分析报告', desc:'12款直接竞品 · 中国市场空白 · 用户规模估算 · 平台能力对比 · 三阶段路线图', tag:'调研', tagClass:'tag-doc', type:'md'},
+    {name:'docs/01-research/devil-advocate-analysis.md', label:'反方论证分析', desc:'6大质疑逐一论证 · 总体风险评级 · MVP必须回答的4个问题', tag:'论证', tagClass:'tag-doc', type:'md'},
+  ],
+  stage2: [
+    {name:'docs/02-product/product-spec.md', label:'产品规格书', desc:'产品定位 · MVP功能规格(F1-F5) · 验证指标 · 三阶段路线图', tag:'规格', tagClass:'tag-doc', type:'md'},
+    {name:'.claude/prds/memo-tool.prd.md', label:'产品需求文档(PRD)', desc:'Problem · Hypothesis · Success Metrics · Scope · Risks', tag:'PRD', tagClass:'tag-doc', type:'md'},
+  ],
+  stage3: [
+    {name:'docs/03-design/interaction-design.md', label:'交互设计', desc:'核心流程 · 5个页面结构 · 导航设计 · 首次使用引导', tag:'设计', tagClass:'tag-doc', type:'md'},
+    {name:'docs/03-design/ui-spec.md', label:'UI规格', desc:'设计令牌 · 核心组件规格 · 页面布局 · 动画规格', tag:'UI', tagClass:'tag-doc', type:'md'},
+    {name:'docs/03-design/visual-style-guide.md', label:'视觉风格指南', desc:'设计理念 · 色彩体系 · 图标系统 · 卡片规范', tag:'风格', tagClass:'tag-doc', type:'md'},
+  ],
+  stage4: [
+    {name:'docs/04-plan/mvp-architecture-plan.md', label:'MVP 架构设计与技术选型', desc:'技术选型决策 · 功能-技术映射(F1-F5) · 数据模型 · 存储策略 · 工程结构 · 设计令牌迁移', tag:'架构', tagClass:'tag-doc', type:'md'},
+  ],
+  stage5: [],
+  stage6: [],
+  stage7: [],
 };
 
-function showPanel(name) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  event.target.classList.add('active');
-  document.getElementById('detail-view').classList.remove('active');
-  document.querySelector('.content').style.display = '';
-}
-
-function showDoc(id) {
-  const doc = docs[id];
-  if (!doc) return;
-  fetch(doc.file)
-    .then(r => r.text())
-    .then(md => {
-      document.getElementById('detail-content').innerHTML = '<h1>' + doc.title + '</h1>' + renderMd(md);
-      document.querySelector('.content').style.display = 'none';
-      document.getElementById('detail-view').classList.add('active');
-    })
-    .catch(() => {
-      document.getElementById('detail-content').innerHTML = '<h1>' + doc.title + '</h1><p style="color:var(--red)">文件加载失败</p>';
-      document.querySelector('.content').style.display = 'none';
-      document.getElementById('detail-view').classList.add('active');
-    });
-}
-
-function hideDoc() {
-  document.getElementById('detail-view').classList.remove('active');
-  document.querySelector('.content').style.display = '';
-}
-
-function renderMd(md) {
-  let html = md
-    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
-    .replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:16px 0">');
-
-  // Tables
-  html = html.replace(/(\|.+\|[\r\n]+\|[-| :]+\|[\r\n]+((\|.+\|[\r\n]*)+))/gm, function(match) {
-    const rows = match.trim().split('\n').filter(r => r.trim() && !r.match(/^[\s|:-]+$/));
-    if (rows.length < 2) return match;
-    let table = '<table>';
-    rows.forEach((row, i) => {
-      const cells = row.split('|').filter(c => c.trim() !== '');
-      const tag = i === 0 ? 'th' : 'td';
-      table += '<tr>' + cells.map(c => '<' + tag + '>' + c.trim() + '</' + tag + '>').join('') + '</tr>';
-    });
-    table += '</table>';
-    return table;
+Object.entries(stages).forEach(([id, files]) => {
+  const list = document.getElementById(id);
+  if (!list) return;
+  if (/^stage[1-7]$/.test(id)) {
+    list.style.display = 'none';
+    return;
+  }
+  list.style.display = 'grid';
+  const stageWrap = list.closest('.stage');
+  const countEl = stageWrap ? stageWrap.querySelector('.stage-count') : null;
+  files.forEach(f => {
+    const card = document.createElement('button');
+    card.className = 'file-card';
+    card.type = 'button';
+    card.innerHTML = `<h3>${f.label}<span class="tag ${f.tagClass}">${f.tag}</span></h3><p>${f.desc}</p>`;
+    card.onclick = () => openFile(f);
+    list.appendChild(card);
   });
+  if (countEl) countEl.textContent = String(files.length);
+});
 
-  // Lists
-  html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
-  html = html.replace(/(<li>.*<\/li>[\n]*)+/g, '<ul>$&</ul>');
+const summaryMap = {'stage1-wrap':'market-summary','stage2-wrap':'product-summary','stage3-wrap':'design-summary'};
+const summaryIds = Object.values(summaryMap);
 
-  // Paragraphs for remaining lines
-  html = html.replace(/^(?!<[hultob]|<hr|<li|<block|<table|<tr|<td|<th)(.*$)/gm, function(m, p1) {
-    return p1.trim() ? '<p>' + p1 + '</p>' : '';
+function openPanel(el) {
+  if (!el) return;
+  el.style.opacity = '1';
+  el.style.maxHeight = el.scrollHeight + 40 + 'px';
+  el.addEventListener('transitionend', function done(e) {
+    if (e.propertyName === 'max-height' && el.style.maxHeight !== '0px') el.style.maxHeight = 'none';
+    el.removeEventListener('transitionend', done);
   });
+}
 
+function closePanel(el) {
+  if (!el) return;
+  if (el.style.maxHeight === 'none') el.style.maxHeight = el.scrollHeight + 40 + 'px';
+  el.offsetHeight;
+  el.style.opacity = '0';
+  el.style.maxHeight = '0';
+}
+
+function refreshOpenSummaries() {
+  summaryIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.style.maxHeight !== '0px' && el.style.maxHeight !== '0') el.style.maxHeight = 'none';
+  });
+}
+
+document.querySelectorAll('.stage').forEach(stage => {
+  const header = stage.querySelector('.stage-header');
+  const toggleStage = () => {
+    stage.classList.toggle('collapsed');
+    header.setAttribute('aria-expanded', stage.classList.contains('collapsed') ? 'false' : 'true');
+    const summaryId = summaryMap[stage.id];
+    if (summaryId) {
+      const ms = document.getElementById(summaryId);
+      if (ms) {
+        const isCollapsed = stage.classList.contains('collapsed');
+        if (isCollapsed) closePanel(ms);
+        else openPanel(ms);
+      }
+    }
+  };
+  header.addEventListener('click', toggleStage);
+  header.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStage(); } });
+});
+
+// Collapse stages 2-7 by default (no content yet)
+document.querySelectorAll('.stage.s2,.stage.s3,.stage.s4,.stage.s5,.stage.s6,.stage.s7').forEach(s => {
+  s.classList.add('collapsed');
+  s.querySelector('.stage-header').setAttribute('aria-expanded', 'false');
+  const fl = s.querySelector('.file-list');
+  if (fl) fl.style.display = 'none';
+});
+
+summaryIds.forEach(id => {
+  const ms = document.getElementById(id);
+  if (ms) { ms.style.opacity = '1'; ms.style.maxHeight = 'none'; }
+});
+
+document.querySelectorAll('.ss-item').forEach(item => {
+  item.classList.add('collapsed');
+  const body = item.querySelector('.ss-body');
+  if (body) body.style.maxHeight = '0';
+});
+
+buildRightToc();
+
+function scrollToStage(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.classList.contains('collapsed')) el.querySelector('.stage-header').click();
+  setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+}
+
+function scrollToSsItem(stageId, ssId) {
+  const stageEl = document.getElementById(stageId);
+  const ssItem = document.getElementById(ssId);
+  if (!stageEl || !ssItem) return;
+  if (stageEl.classList.contains('collapsed')) stageEl.querySelector('.stage-header').click();
+  setTimeout(() => {
+    if (ssItem.classList.contains('collapsed')) toggleSs(ssItem.querySelector('.ss-head'));
+    setTimeout(() => ssItem.scrollIntoView({behavior:'smooth', block:'start'}), 80);
+  }, 60);
+}
+
+function buildRightToc() {
+  const inner = document.querySelector('#home-right-toc .rtoc-inner');
+  if (!inner) return;
+  const stageEls = document.querySelectorAll('.stage[id$="-wrap"]');
+  let html = '<div class="rtoc-title">导航</div>';
+  stageEls.forEach((stage, si) => {
+    const num = stage.querySelector('.stage-num')?.textContent || '';
+    const title = stage.querySelector('.stage-title')?.textContent || '';
+    html += `<button class="rtoc-l1" onclick="scrollToStage('${stage.id}')">${num}. ${title}</button>`;
+    stage.querySelectorAll('.ss-head h4').forEach((h4, i) => {
+      const ssItem = h4.closest('.ss-item');
+      const ssId = `ss-${stage.id}-${i}`;
+      ssItem.id = ssId;
+      const label = h4.textContent.replace(/^\d+\.\s*/, '');
+      html += `<button class="rtoc-l2" onclick="scrollToSsItem('${stage.id}','${ssId}')">${label}</button>`;
+    });
+    if (si < stageEls.length - 1) html += '<div class="rtoc-sep"></div>';
+  });
+  inner.innerHTML = html;
+}
+
+function toggleSs(headEl) {
+  const item = headEl.closest('.ss-item');
+  const body = item.querySelector('.ss-body');
+  if (item.classList.contains('collapsed')) {
+    item.classList.remove('collapsed');
+    body.style.maxHeight = body.scrollHeight + 'px';
+    body.addEventListener('transitionend', function done(e) {
+      if (e.propertyName === 'max-height' && !item.classList.contains('collapsed')) body.style.maxHeight = 'none';
+      body.removeEventListener('transitionend', done);
+    });
+    refreshOpenSummaries();
+  } else {
+    if (body.style.maxHeight === 'none') body.style.maxHeight = body.scrollHeight + 'px';
+    body.offsetHeight;
+    body.style.maxHeight = body.scrollHeight + 'px';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      body.style.maxHeight = '0';
+      item.classList.add('collapsed');
+      refreshOpenSummaries();
+    }));
+  }
+}
+
+let _currentDocDir = '';
+
+function openFile(f) {
+  if (f.type === 'game' || f.type === 'code') { location.href = f.name; return; }
+  fetch(f.name).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.text();
+  }).then(text => {
+    _currentDocDir = f.name.includes('/') ? f.name.substring(0, f.name.lastIndexOf('/') + 1) : '';
+    document.getElementById('home').style.display = 'none';
+    document.getElementById('md-viewer').classList.add('active');
+    document.getElementById('viewerTitle').textContent = f.label;
+    document.getElementById('mdBody').innerHTML = parseMd(text);
+    renderToc();
+    window.scrollTo(0, 0);
+  }).catch(err => {
+    document.getElementById('home').style.display = 'none';
+    document.getElementById('md-viewer').classList.add('active');
+    document.getElementById('viewerTitle').textContent = `${f.label}（加载失败）`;
+    document.getElementById('mdBody').innerHTML = `<h2>文件无法访问</h2><p>尝试读取：<code>${escapeHtml(f.name)}</code></p><p>错误：<code>${escapeHtml(err.message)}</code></p>`;
+    renderToc();
+  });
+}
+
+function goHome() {
+  document.getElementById('home').style.display = '';
+  document.getElementById('md-viewer').classList.remove('active');
+  document.getElementById('mdToc').innerHTML = `<div class="toc-empty">当前文档没有可导航的标题。</div>`;
+}
+
+function enterDocs() {
+  document.getElementById('entry').style.display = 'none';
+  document.getElementById('home').style.display = '';
+}
+
+function goEntry() {
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('md-viewer').classList.remove('active');
+  document.getElementById('entry').style.display = '';
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function _resolvePath(rel) {
+  const parts = (_currentDocDir + rel).split('/');
+  const stack = [];
+  parts.forEach(p => { if (p === '..') stack.pop(); else if (p && p !== '.') stack.push(p); });
+  return stack.join('/');
+}
+
+function parseMd(src) {
+  const blocks = src.replace(/\r\n/g,'\n').split('\n');
+  let html = '';
+  let inCode = false;
+  let codeLines = [];
+  let listType = '';
+  let tableRows = [];
+  function closeList() { if (!listType) return; html += listType === 'ol' ? '</ol>' : '</ul>'; listType = ''; }
+  function flushTable() { if (!tableRows.length) return; const body = tableRows.map(row => '<tr>' + row.map(cell => `<td>${parseInline(cell.trim())}</td>`).join('') + '</tr>').join(''); html += `<table>${body}</table>`; tableRows = []; }
+  blocks.forEach(line => {
+    if (line.startsWith('```')) { flushTable(); closeList(); if (!inCode) { inCode = true; codeLines = []; } else { html += `<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`; inCode = false; } return; }
+    if (inCode) { codeLines.push(line); return; }
+    if (/^\|(.+)\|$/.test(line)) { closeList(); tableRows.push(line.split('|').slice(1,-1)); return; }
+    flushTable();
+    if (/^\s*$/.test(line)) { closeList(); return; }
+    const headingMatch = /^(#{1,4})\s+(.+)$/.exec(line);
+    if (headingMatch) { closeList(); const level = headingMatch[1].length; html += `<h${level}>${parseInline(headingMatch[2])}</h${level}>`; return; }
+    if (/^---+$/.test(line.trim())) { closeList(); html += '<hr>'; return; }
+    const quoteMatch = /^>\s+(.+)$/.exec(line);
+    if (quoteMatch) { closeList(); html += `<blockquote>${parseInline(quoteMatch[1])}</blockquote>`; return; }
+    const orderedMatch = /^\d+\.\s+(.+)$/.exec(line);
+    if (orderedMatch) { if (listType !== 'ol') { closeList(); listType = 'ol'; html += '<ol>'; } html += `<li>${parseInline(orderedMatch[1])}</li>`; return; }
+    const unorderedMatch = /^[-*]\s+(.+)$/.exec(line);
+    if (unorderedMatch) { if (listType !== 'ul') { closeList(); listType = 'ul'; html += '<ul>'; } html += `<li>${parseInline(unorderedMatch[1])}</li>`; return; }
+    closeList();
+    html += `<p>${parseInline(line)}</p>`;
+  });
+  if (inCode) html += `<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`;
+  flushTable(); closeList();
   return html;
 }
-</script>
 
+function parseInline(text) {
+  let h = escapeHtml(text);
+  h = h.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,(m,alt,src)=>{ if(src.startsWith('/')&&!src.startsWith('//')&&location.host) src=location.protocol+'//'+location.host+'/'+src; return`<img src="${src}" alt="${alt}">`; });
+  h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, href) => {
+    if (href.endsWith('.md') || href.includes('.md#') || href.includes('.md)')) {
+      const resolved = href.startsWith('/') ? href.substring(1) : (href.startsWith('../') || href.startsWith('./') ? _resolvePath(href) : _currentDocDir + href);
+      const label = text.replace(/[*`]/g, '');
+      return `<a href="#" onclick="openFile({name:'${resolved}',label:'${escapeHtml(label)}',type:'md'});return false">${text}</a>`;
+    }
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+  });
+  h = h.replace(/`([^`]+)`/g,'<code>$1</code>');
+  h = h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h = h.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  return h;
+}
+
+function slugify(text) {
+  return text.toLowerCase().trim().replace(/[^\w一-龥\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-') || 'section';
+}
+
+function renderToc() {
+  const body = document.getElementById('mdBody');
+  const toc = document.getElementById('mdToc');
+  const headings = [...body.querySelectorAll('h1,h2,h3')];
+  if (!headings.length) { toc.innerHTML = `<div class="toc-empty">当前文档没有可导航的标题。</div>`; return; }
+  toc.innerHTML = '';
+  const usedIds = new Map();
+  headings.forEach((heading, index) => {
+    const base = slugify(heading.textContent);
+    const count = usedIds.get(base) || 0;
+    usedIds.set(base, count + 1);
+    heading.id = count ? `${base}-${count + 1}` : base;
+    const item = document.createElement('button');
+    item.className = `toc-item lv${heading.tagName.slice(1)}`;
+    item.textContent = heading.textContent.trim() || `段落 ${index + 1}`;
+    item.onclick = () => heading.scrollIntoView({behavior:'smooth', block:'start'});
+    toc.appendChild(item);
+  });
+}
+</script>
 </body>
 </html>
