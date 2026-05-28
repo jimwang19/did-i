@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>过门不忘 — 高保真原型 + 标注</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -39,8 +37,8 @@
   --danger-soft: rgba(239,83,80,.12);
 
   /* ── Type ── */
-  --font-body: 'Noto Sans SC', -apple-system, sans-serif;
-  --font-display: 'DM Serif Display', serif;
+  --font-body: "PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
+  --font-display: "Avenir Next","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
 
   /* ── Shape (consistent radius scale: 8/12/16/20) ── */
   --radius-sm: 8px;
@@ -1952,6 +1950,7 @@ function applyFilter() {
   });
 }
 applyFilter();
+sortConfirmList();
 
 // ═══ Edit Mode ═══
 let editMode = false;
