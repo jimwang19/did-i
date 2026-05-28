@@ -1,0 +1,42 @@
+<view class="page">
+  <!-- 顶部状态栏 -->
+  <view class="header">
+    <text class="header-title">今日确认</text>
+    <text class="header-date">{{today}}</text>
+  </view>
+
+  <!-- 事项列表 -->
+  <scroll-view class="list" scroll-y>
+    <view
+      wx:for="{{items}}"
+      wx:key="id"
+      class="item-card {{item.confirmed ? 'confirmed' : 'pending'}}"
+      data-id="{{item.id}}"
+      bindtap="onItemTap"
+    >
+      <view class="item-icon">{{item.icon}}</view>
+      <view class="item-info">
+        <text class="item-name">{{item.name}}</text>
+        <text class="item-time" wx:if="{{item.confirmed}}">{{item.confirmTime}}</text>
+        <text class="item-time pending-text" wx:else>待确认</text>
+      </view>
+      <view class="item-status">
+        <text class="status-icon" wx:if="{{item.confirmed}}">✅</text>
+        <text class="status-icon" wx:else>⏳</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty" wx:if="{{items.length === 0}}">
+      <text class="empty-icon">📝</text>
+      <text class="empty-text">还没有事项</text>
+      <text class="empty-hint">点击下方按钮添加第一个事项</text>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <button class="btn-add" bindtap="onAddItem">+ 添加事项</button>
+    <button class="btn-confirm" bindtap="onQuickConfirm">快速确认</button>
+  </view>
+</view>

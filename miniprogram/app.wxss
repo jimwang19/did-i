@@ -1,0 +1,50 @@
+/**
+ * 过门不忘 — 全局设计令牌
+ * 对齐 ui-spec.md + visual-style-guide.md
+ * 从 prototype.html CSS 变量映射
+ */
+page {
+  /* ========== 色彩 ========== */
+  --color-bg: #0c0f14;
+  --color-surface: #161b22;
+  --color-surface-hover: #1c2129;
+  --color-accent: #4ecdc4;
+  --color-accent-soft: rgba(78, 205, 196, 0.15);
+  --color-success: #81c784;
+  --color-success-soft: rgba(129, 199, 132, 0.12);
+  --color-pending: #546e7a;
+  --color-pending-soft: rgba(84, 110, 122, 0.12);
+  --color-text: #e6edf3;
+  --color-text-soft: #8b949e;
+  --color-text-mid: #5e6f7d;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-accent: rgba(126, 220, 212, 0.18);
+  --color-red: #ff6b6b;
+  --color-warm: #ff8c42;
+
+  /* ========== 间距 ========== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* ========== 圆角 ========== */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* ========== 字体 ========== */
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 17px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+
+  /* ========== 页面基础 ========== */
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}

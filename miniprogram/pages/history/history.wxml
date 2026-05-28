@@ -1,0 +1,26 @@
+<view class="page">
+  <view class="header">
+    <text class="header-title">历史记录</text>
+  </view>
+
+  <scroll-view class="list" scroll-y>
+    <view class="day-group" wx:for="{{historyGroups}}" wx:key="date">
+      <view class="day-header">
+        <text class="day-text">{{item.date}}</text>
+      </view>
+      <view class="record" wx:for="{{item.records}}" wx:for-item="record" wx:key="itemId">
+        <view class="record-icon">{{record.itemIcon}}</view>
+        <view class="record-info">
+          <text class="record-name">{{record.itemName}}</text>
+          <text class="record-time">{{record.timestamp}}</text>
+        </view>
+        <text class="record-method">{{record.method === 'camera' ? '📷' : '✅'}}</text>
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{historyGroups.length === 0}}">
+      <text class="empty-icon">📭</text>
+      <text class="empty-text">暂无历史记录</text>
+    </view>
+  </scroll-view>
+</view>
