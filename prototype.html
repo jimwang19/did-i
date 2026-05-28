@@ -685,6 +685,13 @@ body::before {
 }
 .btn-primary:active { transform: scale(.98); }
 
+.btn-primary.disabled,
+.btn-secondary.disabled {
+  opacity: .35;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .btn-secondary {
   background: var(--accent-soft);
   color: var(--accent);
@@ -1340,10 +1347,10 @@ body::before {
         </div>
 
         <div class="bottom-bar" id="bottom-bar">
-          <button class="btn btn-primary" onclick="quickConfirm('拍照确认')">
+          <button class="btn btn-primary disabled" id="btn-photo" onclick="quickConfirm('拍照确认')">
             <span>📷</span> 拍照确认
           </button>
-          <button class="btn btn-secondary" onclick="quickConfirm('按钮确认')">
+          <button class="btn btn-secondary disabled" id="btn-quick" onclick="quickConfirm('按钮确认')">
             <span>✓</span> 快速确认
           </button>
         </div>
@@ -1711,37 +1718,36 @@ function selectEntry(el) {
   el.classList.add('selected');
   selectedEntry = el;
 
-  // Update bottom hint
-  const nameEl = el.querySelector('.name');
-  const name = nameEl.textContent.trim();
-  const hint = document.getElementById('selected-hint');
-  if (el.classList.contains('pending')) {
-    hint.textContent = '选中「' + name + '」→ 底部按钮确认';
-    hint.classList.add('active');
-  } else if (el.classList.contains('confirmed')) {
+  // 已确认项打开详情面板，待确认项准备底部按钮确认
+  if (el.classList.contains('confirmed')) {
     openDetailSheet(el);
-    hint.textContent = '查看「' + name + '」详情';
-    hint.classList.add('active');
   }
 
-  // If pending, update bottom bar buttons to show the item name
   updateBottomBarHint();
 }
 
 // ═══ Bottom Bar Hint ═══
 function updateBottomBarHint() {
   const hint = document.getElementById('selected-hint');
-  const btnPhoto = document.querySelector('.btn-primary');
-  const btnQuick = document.querySelector('.btn-secondary');
+  const btnPhoto = document.getElementById('btn-photo');
+  const btnQuick = document.getElementById('btn-quick');
 
   if (selectedEntry && selectedEntry.classList.contains('pending')) {
     const nameEl = selectedEntry.querySelector('.name');
     const name = nameEl.textContent.replace(/#\d+/,'').trim();
     btnPhoto.innerHTML = '<span>📷</span> 拍照确认「' + name + '」';
     btnQuick.innerHTML = '<span>✓</span> 快速确认「' + name + '」';
+    btnPhoto.classList.remove('disabled');
+    btnQuick.classList.remove('disabled');
+    hint.textContent = '选中「' + name + '」→ 底部按钮确认';
+    hint.classList.add('active');
   } else {
     btnPhoto.innerHTML = '<span>📷</span> 拍照确认';
     btnQuick.innerHTML = '<span>✓</span> 快速确认';
+    btnPhoto.classList.add('disabled');
+    btnQuick.classList.add('disabled');
+    hint.textContent = '点选待确认事项，底部按钮确认该项';
+    hint.classList.remove('active');
   }
 }
 
@@ -1749,8 +1755,6 @@ function resetSelection() {
   const panel = document.getElementById('confirm-list');
   panel.querySelectorAll('.confirm-item').forEach(function(item) { item.classList.remove('selected'); });
   selectedEntry = null;
-  document.getElementById('selected-hint').textContent = '点选任意事项，底部按钮确认该项';
-  document.getElementById('selected-hint').classList.remove('active');
   updateBottomBarHint();
 }
 
@@ -1887,22 +1891,20 @@ function sortConfirmList() {
 let confirming = false;
 function quickConfirm(method) {
   if (confirming) return;
+  const btnPhoto = document.getElementById('btn-photo');
+  const btnQuick = document.getElementById('btn-quick');
+  if (btnPhoto.classList.contains('disabled')) return;
   confirming = true;
   setTimeout(function() { confirming = false; }, 500);
 
   const target = selectedEntry || document.querySelector('#page-today .confirm-item.pending');
-  if (!target || !target.classList.contains('pending')) {
-    // 无待确认事项：短暂闪烁底部按钮作为反馈
-    const bar = document.getElementById('bottom-bar');
-    bar.style.transition = 'opacity .15s ease';
-    bar.style.opacity = '0.4';
-    setTimeout(function() { bar.style.opacity = '1'; }, 250);
-    return;
-  }
+  if (!target || !target.classList.contains('pending')) return;
   toggleConfirm(target, method);
-  // Clear selection after confirm
   target.classList.remove('selected');
-  if (selectedEntry === target) selectedEntry = null;
+  if (selectedEntry === target) {
+    selectedEntry = null;
+    updateBottomBarHint();
+  }
 }
 
 // ═══ Emoji & Frequency ═══
