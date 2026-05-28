@@ -1858,9 +1858,21 @@ function sortConfirmList() {
 
 // ═══ Bottom Bar Actions ═══
 // 直接执行，不再弹中间选择面板
+let confirming = false;
 function quickConfirm(method) {
+  if (confirming) return;
+  confirming = true;
+  setTimeout(function() { confirming = false; }, 500);
+
   const target = selectedEntry || document.querySelector('#page-today .confirm-item.pending');
-  if (!target || !target.classList.contains('pending')) return;
+  if (!target || !target.classList.contains('pending')) {
+    // 无待确认事项：短暂闪烁底部按钮作为反馈
+    const bar = document.getElementById('bottom-bar');
+    bar.style.transition = 'opacity .15s ease';
+    bar.style.opacity = '0.4';
+    setTimeout(function() { bar.style.opacity = '1'; }, 250);
+    return;
+  }
   toggleConfirm(target, method);
   // Clear selection after confirm
   target.classList.remove('selected');
