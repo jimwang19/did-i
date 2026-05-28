@@ -509,6 +509,61 @@ a:focus-visible,
     <div class="stage s4" id="stage4-wrap">
       <div class="stage-header" role="button" tabindex="0" aria-expanded="true"><span class="stage-num">4</span><span class="stage-title">架构规划 & 技术方案</span><span class="stage-desc">Blueprint · 技术选型 · ADR</span><span class="stage-arrow" aria-hidden="true"></span></div>
       <div class="file-list" id="stage4" style="display:none"></div>
+      <div id="arch-summary" style="padding:0 0 16px 40px;opacity:0;max-height:0;overflow:hidden;transition:opacity .3s,max-height .35s ease">
+        <div class="summary-shell">
+          <div class="summary-hero">
+            <div>
+              <div class="summary-kicker">Architecture & Tech Stack</div>
+              <h3 style="font-size:15px;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:6px">MVP 架构设计结论</h3>
+              <div class="summary-note">微信小程序原生 + TypeScript，本地优先，无需后端。逐条对齐产品规格书 F1-F5。</div>
+            </div>
+            <div class="summary-stats" aria-label="summary highlights">
+              <span class="kpi-chip accent">微信小程序原生</span>
+              <span class="kpi-chip growth">本地优先</span>
+              <span class="kpi-chip user">TypeScript</span>
+            </div>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-panel">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">1</span>技术选型</div>
+                <div class="summary-panel-sub">平台 · 语言 · 存储</div>
+              </div>
+              <ul style="font-size:12px;color:var(--text-soft);line-height:1.9;list-style:disc">
+                <li><strong style="color:var(--accent)">平台</strong>：微信小程序原生开发（Phase 1 仅微信，不跨平台）</li>
+                <li><strong style="color:var(--text)">语言</strong>：TypeScript + miniprogram-api-typings</li>
+                <li><strong style="color:var(--text)">UI</strong>：原生 WXML + WXSS，不引入第三方库</li>
+                <li><strong style="color:#81c784">存储</strong>：wx.setStorageSync（文本）+ wx.saveFile（照片），本地优先</li>
+              </ul>
+            </div>
+            <div class="summary-panel">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">2</span>数据模型</div>
+                <div class="summary-panel-sub">Item · Confirmation · AppSettings</div>
+              </div>
+              <ul style="font-size:12px;color:var(--text-soft);line-height:1.9;list-style:disc">
+                <li><strong style="color:var(--accent)">Item</strong>：id + name + icon + sortOrder + createdAt</li>
+                <li><strong style="color:var(--text)">Confirmation</strong>：itemId + date + timestamp + method(按钮/拍照) + photoPath</li>
+                <li><strong style="color:var(--text)">AppSettings</strong>：hasSeenOnboarding + lastOpenDate</li>
+                <li><strong style="color:#81c784">分层存储</strong>：事项&lt;1KB · 记录&lt;100KB · 设置&lt;1KB · 照片文件系统</li>
+              </ul>
+            </div>
+            <div class="summary-panel wide">
+              <div class="summary-panel-head">
+                <div class="summary-panel-title"><span class="index">3</span>功能-技术映射</div>
+                <div class="summary-panel-sub">F1-F5 对应规格与实现</div>
+              </div>
+              <div class="summary-actionbar">
+                <div class="summary-action"><span class="summary-action-badge must">F1 今日确认面板</span><div class="summary-action-copy"><span>pages/index：onShow 自动加载，已确认排上，待确认排下，每日 00:00 重置</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge must">F2 确认操作</span><div class="summary-action-copy"><span>confirm-sheet 组件：按钮确认(1次点击) + 拍照确认(调用相机)，即时 ✅ 反馈</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge must">F3 事项管理</span><div class="summary-action-copy"><span>创建/编辑/删除，预设锁车+服药模板，排序按钮，免费版 10 个上限</span></div></div>
+                <div class="summary-action"><span class="summary-action-badge later">F4 历史记录 · F5 数据存储</span><div class="summary-action-copy"><span>pages/history：按日期分组 + 筛选。分层存储，照片 7 天自动清理</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text-mid)">相关文档：</span><button onclick="openFile(stages.stage4[0])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">MVP 架构设计与技术选型</button><span style="color:var(--text-mid);font-size:10px">·</span><button onclick="openFile(stages.stage3[0])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">交互设计</button><span style="color:var(--text-mid);font-size:10px">·</span><button onclick="openFile(stages.stage3[1])" style="background:none;border:none;padding:0;font-size:11px;color:var(--accent-soft);cursor:pointer;opacity:.65;text-decoration:underline;text-underline-offset:2px">UI规格</button></div>
+        </div>
+      </div>
     </div>
 
     <div class="stage s5" id="stage5-wrap">
@@ -593,7 +648,7 @@ Object.entries(stages).forEach(([id, files]) => {
   if (countEl) countEl.textContent = String(files.length);
 });
 
-const summaryMap = {'stage1-wrap':'market-summary','stage2-wrap':'product-summary','stage3-wrap':'design-summary'};
+const summaryMap = {'stage1-wrap':'market-summary','stage2-wrap':'product-summary','stage3-wrap':'design-summary','stage4-wrap':'arch-summary'};
 const summaryIds = Object.values(summaryMap);
 
 function openPanel(el) {
