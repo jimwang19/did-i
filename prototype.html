@@ -284,9 +284,9 @@ body::before {
 .page-header h1 {
   font-family: var(--font-display);
   font-size: 22px;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--text);
-  letter-spacing: .01em;
+  letter-spacing: -.02em;
   line-height: 1;
 }
 
@@ -326,8 +326,8 @@ body::before {
   content: '';
   position: absolute;
   bottom: -1px;
-  left: 20%;
-  right: 20%;
+  left: 12px;
+  right: 12px;
   height: 2px;
   background: var(--accent);
   border-radius: 1px;
@@ -502,7 +502,9 @@ body::before {
 
 .confirm-item.confirmed .status-badge {
   color: var(--success);
-  background: rgba(129,199,132,.15);
+  background: transparent;
+  padding: 2px 0;
+  font-weight: 500;
 }
 
 .confirm-item.pending .status-badge {
@@ -531,7 +533,32 @@ body::before {
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  position: relative;
 }
+.confirm-item .check-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.confirm-item .check-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-mid);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+}
+.confirm-item .check-btn:hover::after { opacity: 1; }
 
 .confirm-item.confirmed .check-btn {
   background: var(--success);
@@ -1258,7 +1285,7 @@ body::before {
             </div>
             <div class="actions">
               <div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>
-              <div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
+              <div class="check-btn" data-tooltip="直接确认" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
               <div class="add-btn" onclick="event.stopPropagation(); addEntry(this, '🚲', '锁车')">+</div>
             </div>
           </div>
@@ -1272,7 +1299,7 @@ body::before {
             </div>
             <div class="actions">
               <div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>
-              <div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
+              <div class="check-btn" data-tooltip="直接确认" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
               <div class="add-btn" onclick="event.stopPropagation(); addEntry(this, '🚲', '锁车')">+</div>
             </div>
           </div>
@@ -1286,7 +1313,7 @@ body::before {
             </div>
             <div class="actions">
               <div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>
-              <div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
+              <div class="check-btn" data-tooltip="直接确认" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
               <div class="add-btn" onclick="event.stopPropagation(); addEntry(this, '💊', '服药')">+</div>
             </div>
           </div>
@@ -1300,7 +1327,7 @@ body::before {
             </div>
             <div class="actions">
               <div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>
-              <div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
+              <div class="check-btn" data-tooltip="直接确认" onclick="event.stopPropagation(); toggleConfirm(this.closest('.confirm-item'))">✓</div>
               <div class="add-btn" onclick="event.stopPropagation(); addEntry(this, '💊', '服药')">+</div>
             </div>
           </div>
@@ -1775,6 +1802,7 @@ function undoConfirm() {
     detailTarget.dataset.hasPhoto = 'false';
     detailTarget.dataset.confirmTime = '';
     applyFilter();
+    sortConfirmList();
   }
   closeDetailSheet();
 }
