@@ -29,4 +29,12 @@
       告别"门口"效应，大脑重启前轻松留痕，安心转身向前走
     </view>
   </view>
-</view>
+  <view class="section">
+    <view class="section-title">数据管理</view>
+    <view class="danger-list">
+      <view class="danger-item" bindtap="onClearHistory">
+        <text class="danger-label">清空历史记录</text>
+        <text class="danger-sub">清除所有确认记录，事项列表保留</text>
+      </view>
+    </view>
+  </view></view>

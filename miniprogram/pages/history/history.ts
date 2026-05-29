@@ -1,4 +1,5 @@
 import { get } from '../../utils/storage';
+import { friendlyDateLabel } from '../../utils/date';
 
 const DAYS_OPTIONS = [
   { label: '全部', value: 0 },
@@ -16,6 +17,8 @@ Page({
     filterItemIndex: 0,
     daysLabels: DAYS_OPTIONS.map(o => o.label),
     filterDaysIndex: 0,
+    detailVisible: false,
+    detailData: null as any,
   },
 
   onLoad() {
@@ -35,6 +38,27 @@ Page({
   onDaysFilterChange(e) {
     this.setData({ filterDaysIndex: Number(e.detail.value) });
     this.loadData();
+  },
+
+  toggleGroup(e) {
+    const { date } = e.currentTarget.dataset;
+    const groups = this.data.historyGroups.map((g: any) => ({
+      ...g,
+      collapsed: g.date === date ? !g.collapsed : g.collapsed,
+    }));
+    this.setData({ historyGroups: groups });
+  },
+
+  onRecordTap(e) {
+    const { icon, name, date, time, method, photo } = e.currentTarget.dataset;
+    this.setData({
+      detailVisible: true,
+      detailData: { icon, name, date, time, method, photoPath: photo || '' },
+    });
+  },
+
+  onDetailClose() {
+    this.setData({ detailVisible: false });
   },
 
   loadData() {
@@ -78,7 +102,7 @@ Page({
 
     const sorted = Object.entries(groups)
       .sort((a, b) => b[0].localeCompare(a[0]))
-      .map(([date, records]) => ({ date, records }));
+      .map(([date, records]) => ({ date, dateLabel: friendlyDateLabel(date), records, collapsed: false }));
 
     this.setData({ historyGroups: sorted, itemLabels, itemIds });
   },

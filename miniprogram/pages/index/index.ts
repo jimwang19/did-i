@@ -10,6 +10,9 @@ Page({
     hideConfirmed: false,
     pendingCount: 0,
     statusBarHeight: 0,
+    detailVisible: false,
+    detailData: null as any,
+    editMode: false,
   },
 
   onLoad() {
@@ -46,6 +49,8 @@ Page({
         confirmed: !!latest,
         confirmTimeShort: latest ? latest.timestamp.slice(0, 5) : '',
         confirmMethod: latest ? latest.method : '',
+        confirmDate: latest ? latest.date : '',
+        confirmPhotoPath: latest ? (latest.photoPath || '') : '',
       };
     }).sort((a, b) => {
       if (a.confirmed !== b.confirmed) return a.confirmed ? 1 : -1;
@@ -83,7 +88,17 @@ Page({
     if (!item) return;
 
     if (item.confirmed) {
-      wx.showToast({ title: '今日已确认', icon: 'none' });
+      this.setData({
+        detailVisible: true,
+        detailData: {
+          icon: item.icon,
+          name: item.name,
+          date: item.confirmDate,
+          time: item.confirmTimeShort,
+          method: item.confirmMethod,
+          photoPath: item.confirmPhotoPath,
+        },
+      });
       return;
     }
 
@@ -101,6 +116,29 @@ Page({
     }
 
     this.confirmByButton(id);
+  },
+
+  onDetailClose() {
+    this.setData({ detailVisible: false });
+  },
+
+  onToggleEditMode() {
+    this.setData({ editMode: !this.data.editMode, selectedItemId: '' });
+  },
+
+  onDeleteItem(e) {
+    const { id } = e.currentTarget.dataset;
+    const item = this.data.displayItems.find(i => i.id === id);
+    wx.showModal({
+      title: '删除事项',
+      content: `确认删除“${item?.name || ''}”？历史记录保留。`,
+      success: (res) => {
+        if (!res.confirm) return;
+        const items = get('memo_items', []).filter(i => i.id !== id);
+        saveItems(items);
+        this.loadData();
+      },
+    });
   },
 
   onAddItem() {

@@ -1,0 +1,41 @@
+<view class="mask {{visible ? 'visible' : ''}}" bindtap="onMaskTap">
+  <view class="sheet {{visible ? 'visible' : ''}}" catchtap="">
+    <view class="handle"></view>
+
+    <!-- 事项标题 -->
+    <view class="sheet-header">
+      <text class="icon">{{detail.icon}}</text>
+      <view class="header-info">
+        <text class="name">{{detail.name}}</text>
+        <text class="sub">确认详情</text>
+      </view>
+    </view>
+
+    <!-- 详情字段 -->
+    <view class="rows">
+      <view class="row">
+        <text class="row-label">日期</text>
+        <text class="row-value">{{detail.date}}</text>
+      </view>
+      <view class="row">
+        <text class="row-label">时间</text>
+        <text class="row-value">{{detail.time}}</text>
+      </view>
+      <view class="row">
+        <text class="row-label">方式</text>
+        <text class="method-badge {{detail.method === 'camera' ? 'camera' : 'button'}}">{{detail.method === 'camera' ? '📷 拍照确认' : '✓ 按钮确认'}}</text>
+      </view>
+    </view>
+
+    <!-- 照片（点击调用 wx.previewImage）-->
+    <view class="photo-block" wx:if="{{detail.photoPath}}">
+      <image class="photo" src="{{detail.photoPath}}" mode="aspectFill" bindtap="onPhotoTap"></image>
+      <text class="photo-hint">点击查看大图</text>
+    </view>
+    <view class="photo-expired" wx:elif="{{detail.method === 'camera'}}">
+      <text class="photo-expired-text">📷 照片已过期（保留 7 天）</text>
+    </view>
+
+    <view class="close-btn" bindtap="onClose">关闭</view>
+  </view>
+</view>

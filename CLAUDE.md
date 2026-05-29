@@ -16,30 +16,73 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### 代码结构
 
-本项目目前 **无构建系统**，纯 HTML/CSS/JS 文件，直接在浏览器中打开即可运行。
+| 平台 | 入口 | 说明 |
+|------|------|------|
+| Web 原型 | `prototype.html` | 单文件，含全部 CSS 令牌 + JS 交互，无构建步骤 |
+| 微信小程序 | `miniprogram/` | TypeScript，三 Tab：今日 / 历史 / 设置 |
+| 项目导航 | `index.html` | 文档链接 + 功能入口 |
 
-| 文件 | 用途 |
-|------|------|
-| `index.html` | 项目导航页（入口），含文档链接、功能入口 |
-| `prototype.html` | 高保真交互原型，包含完整 CSS 设计令牌 + JS 交互逻辑 |
+**无构建系统**，Web 原型直接浏览器打开即可运行。小程序使用微信开发者工具内置编译。
 
-### 原型架构要点
+### 小程序目录结构
+
+```
+miniprogram/
+├── app.ts              # 入口：初始化数据、检测每日重置
+├── app.json            # 全局配置：pages, window, tabBar
+├── app.wxss            # 全局样式：设计令牌（对齐 ui-spec.md）
+├── pages/
+│   ├── index/          # F1+F3：今日确认面板 + 事项管理
+│   ├── history/        # F4：历史记录
+│   ├── settings/       # 设置页
+│   └── onboarding/     # 首次引导
+├── components/         # 自定义组件
+├── utils/
+│   ├── constants.ts    # 预设事项/图标（锁车/服药模板）
+│   ├── storage.ts      # 存储封装（本地优先）
+│   └── date.ts         # 日期工具
+└── types/index.ts      # TypeScript 类型定义
+```
+
+### Web 原型架构要点
 
 - **单文件架构**: `prototype.html` 自包含所有 CSS（`<style>`）和 JS（`<script>`），无需外部依赖
 - **设计令牌系统**: CSS 自定义属性定义在 `:root`，包含色彩/间距/圆角/字体层级，与 `docs/03-design/ui-spec.md` 和 `visual-style-guide.md` 一一对应
 - **暗色主题**: 背景 `#0c0f14`，强调色 `#4ecdc4`（行动），确认色 `#81c784`（安心），待确认色 `#546e7a`（中性）
 - **标注系统**: 原型内置 annotation layer（编号标注 + 侧边栏说明），用于设计评审，可通过右上角开关切换
 - **模拟数据**: 使用 `localStorage` 持久化事项和确认记录，刷新后数据不丢失
+- **全局函数**: JS 函数均为全局函数，不使用模块化
+
+### 小程序关键常量（`miniprogram/utils/constants.ts`）
+
+- `ITEM_MAX_COUNT = 10`（事项上限）
+- `ITEM_NAME_MAX = 10`（名称字符上限）
+- `PHOTO_KEEP_DAYS = 7`（照片保留天数）
+- `ICON_PRESETS`：16 个预设 emoji
 
 ### 运行方式
 
 ```bash
-# 方式一：直接在浏览器打开
-open index.html          # 项目导航
-open prototype.html      # 高保真原型
+# Web 原型（推荐用本地服务器避免 file:// 限制）
+python -m http.server 8080
+# 浏览器打开 http://localhost:8080/prototype.html
 
-# 方式二：本地服务器（推荐，避免 file:// 限制）
-python -m http.server 8080   # 然后访问 http://localhost:8080
+# 小程序：在微信开发者工具中打开项目根目录
+# 开启服务端口后可运行自动化测试（见 scripts/README.md）
+```
+
+### 自动化测试
+
+小程序自动化测试脚本位于 `scripts/` 目录：
+
+```bash
+# 前提：微信开发者工具开启服务端口（设置 → 安全设置 → 服务端口）
+# 启动自动化服务
+scripts\enable-auto.bat
+
+# 运行测试
+node scripts/test-automation.js
+# 输出：test-outputs/ 目录截图
 ```
 
 ## 产品核心概念
@@ -56,13 +99,11 @@ python -m http.server 8080   # 然后访问 http://localhost:8080
 | File | Purpose |
 |------|---------|
 | `prototype.html` | 高保可交互原型，设计评审和验证的核心载体 |
-| `index.html` | 项目导航入口 |
+| `miniprogram/` | 微信小程序 MVP，原生 TypeScript 开发 |
 | `docs/02-product/product-spec.md` | 产品功能规格书，所有功能定义和交付标准的唯一来源 |
-| `docs/01-research/market-competitive-analysis.md` | 市场竞品分析报告 |
-| `docs/03-design/interaction-design.md` | 交互设计文档 |
+| `docs/04-plan/mvp-architecture-plan.md` | MVP 架构计划，功能-技术映射详细说明 |
 | `docs/03-design/ui-spec.md` | UI 规格（设计令牌、组件规范） |
-| `docs/03-design/visual-style-guide.md` | 视觉风格指南 |
-| `.claude/prds/memo-tool.prd.md` | 产品定位 PRD |
+| `docs/adr/` | 架构决策记录（平台选型、存储策略等） |
 
 ## 文档结构
 
@@ -150,15 +191,18 @@ docs/
 
 **原则：每次改完代码必须在目标平台运行验证，再改状态为 In Review。**
 
-### Web/原型测试
-- 修改 `prototype.html` 后必须在 Playwright 浏览器中打开验证
+### Web 原型测试
+- 修改 `prototype.html` 后必须在浏览器中打开验证
 - 检查项：视觉效果（布局、颜色、间距）、交互行为（点击、切换、动画）、标注系统（定位、联动）
-- 使用 Playwright MCP 工具截图验证关键页面状态
 
 ### 小程序测试
-- 微信开发者工具预览
-- 真机扫码验证
+- 微信开发者工具预览 + 真机扫码验证
 - 操作流程：打开 → 点确认 → 查看记录 → 拍照确认
+- 自动化测试：`scripts/test-automation.js`（需开启服务端口）
+
+### 小程序 TypeScript 编译配置
+- `compilerPlugins: ["typescript"]` — 使用 TypeScript 编译插件
+- **SWC 已禁用**（`disableSWC: true`）— 避免兼容性问题
 
 ## 文档变更影响链
 

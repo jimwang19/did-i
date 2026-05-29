@@ -124,3 +124,28 @@
   padding: 12px 16px;
   line-height: 1.6;
 }
+
+/* ===== Danger Zone ===== */
+.danger-list {
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.danger-item {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.danger-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-red);
+}
+
+.danger-sub {
+  font-size: 12px;
+  color: var(--color-text-mid);
+}
