@@ -1,6 +1,6 @@
 import { get, saveItems, saveConfirmations, saveSettings } from '../../utils/storage';
 import { todayStr, timeStr } from '../../utils/date';
-import { ITEM_MAX_COUNT } from '../../utils/constants';
+import { ITEM_MAX_COUNT, STORAGE_KEYS } from '../../utils/constants';
 
 Page({
   data: {
@@ -18,6 +18,11 @@ Page({
       this.setData({ statusBarHeight: sysInfo.statusBarHeight });
     } catch {
       this.setData({ statusBarHeight: 44 });
+    }
+    const settings = get(STORAGE_KEYS.SETTINGS, { hasSeenOnboarding: false, lastOpenDate: '' });
+    if (!settings.hasSeenOnboarding) {
+      wx.navigateTo({ url: '/pages/onboarding/onboarding' });
+      return;
     }
     this.loadData();
   },

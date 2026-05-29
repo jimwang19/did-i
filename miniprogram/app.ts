@@ -17,12 +17,12 @@ App<IAppOption>({
   initAppData() {
     const data = loadAppData();
     if (!data.settings.hasSeenOnboarding) {
-      const defaults: Item[] = DEFAULT_ITEM_TEMPLATES.map((t, i) => ({
+      // First launch: create default items; hasSeenOnboarding is set by onboarding page
+      const defaults: Item[] = DEFAULT_ITEM_TEMPLATES.map((t) => ({
         ...t,
         createdAt: new Date().toISOString(),
       }));
       data.items = defaults;
-      data.settings.hasSeenOnboarding = true;
       data.settings.lastOpenDate = todayStr();
       saveAppData(data);
     }

@@ -1,0 +1,38 @@
+<view class="container">
+
+  <view class="hero">
+    <view class="hero-icon">🚪</view>
+    <view class="hero-title">告别"门口"效应</view>
+    <view class="hero-subtitle">大脑重启前轻松留痕，安心转身向前走</view>
+  </view>
+
+  <view class="steps">
+    <view class="step">
+      <view class="step-num">1</view>
+      <view class="step-content">
+        <view class="step-title">做完就记</view>
+        <view class="step-desc">锁门、关火、服药……一键确认，5秒搞定</view>
+      </view>
+    </view>
+    <view class="step">
+      <view class="step-num">2</view>
+      <view class="step-content">
+        <view class="step-title">拍照留证</view>
+        <view class="step-desc">照片为证，彻底消除"我真的做了吗？"</view>
+      </view>
+    </view>
+    <view class="step">
+      <view class="step-num">3</view>
+      <view class="step-content">
+        <view class="step-title">随时安心</view>
+        <view class="step-desc">焦虑时翻记录，清清楚楚，安心出发</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer">
+    <view class="preset-note">已为你准备好「锁车 🚲」和「服药 💊」两个常用事项</view>
+    <button class="start-btn" bindtap="onStart">开始使用</button>
+  </view>
+
+</view>
