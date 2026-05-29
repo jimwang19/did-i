@@ -1,20 +1,25 @@
 <view class="page">
-  <view class="header">
-    <text class="header-title">历史记录</text>
+  <!-- 状态栏占位 -->
+  <view class="status-bar-placeholder" style="height: {{statusBarHeight}}px;"></view>
+
+  <view class="page-header">
+    <text class="header-title">历史</text>
   </view>
 
-  <scroll-view class="list" scroll-y>
+  <view class="history-list">
     <view class="day-group" wx:for="{{historyGroups}}" wx:key="date">
-      <view class="day-header">
-        <text class="day-text">{{item.date}}</text>
-      </view>
+      <view class="day-header">{{item.date}}</view>
       <view class="record" wx:for="{{item.records}}" wx:for-item="record" wx:key="itemId">
         <view class="record-icon">{{record.itemIcon}}</view>
         <view class="record-info">
           <text class="record-name">{{record.itemName}}</text>
-          <text class="record-time">{{record.timestamp}}</text>
+          <view class="record-meta">
+            <text class="record-time">{{record.timestampShort}}</text>
+            <text wx:if="{{record.method === 'camera'}}"> · 拍照</text>
+          </view>
         </view>
-        <text class="record-method">{{record.method === 'camera' ? '📷' : '✅'}}</text>
+        <view class="record-badge confirmed" wx:if="{{record.method === 'button'}}">✅</view>
+        <view class="record-badge" wx:else>📷</view>
       </view>
     </view>
 
@@ -22,5 +27,5 @@
       <text class="empty-icon">📭</text>
       <text class="empty-text">暂无历史记录</text>
     </view>
-  </scroll-view>
+  </view>
 </view>

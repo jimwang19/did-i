@@ -1,19 +1,24 @@
-import type { Item, Confirmation } from '../../types';
-import { get, saveItems, saveConfirmations, savePhoto, saveSettings } from '../../utils/storage';
-import { todayStr, timeStr, timeShort } from '../../utils/date';
-import { DEFAULT_ITEMS as DEFAULT_ITEM_TEMPLATES, ITEM_MAX_COUNT } from '../../utils/constants';
+import { get, saveItems, saveConfirmations, saveSettings } from '../../utils/storage';
+import { todayStr, timeStr } from '../../utils/date';
+import { ITEM_MAX_COUNT } from '../../utils/constants';
 
 Page({
   data: {
-    items: [] as Item[],
-    today: todayStr(),
-    selectedItemId: '' as string,
-    showActionSheet: false,
-    confirmText: '请选择要确认的事项',
-    confirmDisabled: true,
+    displayItems: [],
+    todayDisplay: '',
+    selectedItemId: '',
+    hideConfirmed: false,
+    pendingCount: 0,
+    statusBarHeight: 0,
   },
 
   onLoad() {
+    try {
+      const sysInfo = wx.getWindowInfo();
+      this.setData({ statusBarHeight: sysInfo.statusBarHeight });
+    } catch {
+      this.setData({ statusBarHeight: 44 });
+    }
     this.loadData();
   },
 
@@ -21,13 +26,12 @@ Page({
     this.loadData();
   },
 
-  /** 加载事项列表 */
-  loadData() {
-    const items = get<Item[]>('memo_items', []);
+  _buildDisplayItems() {
+    const items = get('memo_items', []);
     const today = todayStr();
-    const confirmations = get<Confirmation[]>('memo_confirmations', []);
+    const confirmations = get('memo_confirmations', []);
 
-    const displayItems = items.map(item => {
+    return items.map(item => {
       const todayConf = confirmations
         .filter(c => c.itemId === item.id && c.date === today)
         .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
@@ -35,105 +39,67 @@ Page({
       return {
         ...item,
         confirmed: !!latest,
-        confirmTime: latest ? latest.timestamp : '',
+        confirmTimeShort: latest ? latest.timestamp.slice(0, 5) : '',
         confirmMethod: latest ? latest.method : '',
       };
     }).sort((a, b) => {
-      // 待确认排上，已确认排下
       if (a.confirmed !== b.confirmed) return a.confirmed ? 1 : -1;
       return a.sortOrder - b.sortOrder;
     });
-
-    this.setData({ items: displayItems });
   },
 
-  /** 点击事项卡片 */
-  onItemTap(e: WechatMiniprogram.TouchEvent) {
-    const { id } = e.currentTarget.dataset;
-    const today = todayStr();
-    const confirmations = get<Confirmation[]>('memo_confirmations', []);
-    const existing = confirmations.find(c => c.itemId === id && c.date === today);
+  loadData() {
+    const displayItems = this._buildDisplayItems();
+    const pendingCount = displayItems.filter(i => !i.confirmed).length;
+    const filtered = this.data.hideConfirmed
+      ? displayItems.filter(i => !i.confirmed)
+      : displayItems;
 
-    if (existing) {
-      // 已确认的事项，不重复确认
+    const d = new Date();
+    const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+    const todayDisplay = `${d.getMonth() + 1}月${d.getDate()}日 周${weekDays[d.getDay()]}`;
+
+    this.setData({ displayItems: filtered, todayDisplay, pendingCount });
+  },
+
+  toggleFilter() {
+    const hideConfirmed = !this.data.hideConfirmed;
+    const displayItems = this._buildDisplayItems();
+    const filtered = hideConfirmed
+      ? displayItems.filter(i => !i.confirmed)
+      : displayItems;
+
+    this.setData({ hideConfirmed, displayItems: filtered });
+  },
+
+  onItemTap(e) {
+    const { id } = e.currentTarget.dataset;
+    const item = this.data.displayItems.find(i => i.id === id);
+    if (!item) return;
+
+    if (item.confirmed) {
       wx.showToast({ title: '今日已确认', icon: 'none' });
       return;
     }
 
-    this.setData({ selectedItemId: id });
-    wx.showActionSheet({
-      itemList: ['快速确认', '拍照确认'],
-      success: (res) => {
-        if (res.tapIndex === 0) {
-          this.confirmByButton(id);
-        } else if (res.tapIndex === 1) {
-          this.confirmByCamera(id);
-        }
-      },
-    });
+    this.setData({ selectedItemId: this.data.selectedItemId === id ? '' : id });
   },
 
-  /** 按钮确认 */
-  confirmByButton(itemId: string) {
-    const conf: Confirmation = {
-      itemId,
-      date: todayStr(),
-      timestamp: timeStr(),
-      method: 'button',
-    };
-    const confirmations = get<Confirmation[]>('memo_confirmations', []);
-    confirmations.push(conf);
-    saveConfirmations(confirmations);
+  onCheckTap(e) {
+    const { id } = e.currentTarget.dataset;
+    const item = this.data.displayItems.find(i => i.id === id);
+    if (!item) return;
 
-    // 更新 settings.lastOpenDate
-    const settings = get('memo_settings', { hasSeenOnboarding: false, lastOpenDate: '' });
-    settings.lastOpenDate = todayStr();
-    saveSettings(settings);
-
-    this.loadData();
-    wx.showToast({ title: '已确认', icon: 'success' });
-  },
-
-  /** 拍照确认 */
-  async confirmByCamera(itemId: string) {
-    try {
-      const res = await new Promise<WechatMiniprogram.ChooseMediaSuccessCallbackResult>(
-        (resolve, reject) => wx.chooseMedia({
-          count: 1,
-          mediaType: ['image'],
-          sourceType: ['camera'],
-          success: resolve,
-          fail: reject,
-        })
-      );
-      const tempPath = res.tempFiles[0].tempFilePath;
-      const savedPath = await savePhoto(tempPath);
-
-      const conf: Confirmation = {
-        itemId,
-        date: todayStr(),
-        timestamp: timeStr(),
-        method: 'camera',
-        photoPath: savedPath,
-      };
-      const confirmations = get<Confirmation[]>('memo_confirmations', []);
-      confirmations.push(conf);
-      saveConfirmations(confirmations);
-
-      const settings = get('memo_settings', { hasSeenOnboarding: false, lastOpenDate: '' });
-      settings.lastOpenDate = todayStr();
-      saveSettings(settings);
-
-      this.loadData();
-      wx.showToast({ title: '已确认', icon: 'success' });
-    } catch {
-      // 用户取消拍照
+    if (item.confirmed) {
+      wx.showToast({ title: '今日已确认', icon: 'none' });
+      return;
     }
+
+    this.confirmByButton(id);
   },
 
-  /** 添加事项 */
   onAddItem() {
-    const items = get<Item[]>('memo_items', []);
+    const items = get('memo_items', []);
     if (items.length >= ITEM_MAX_COUNT) {
       wx.showToast({ title: `最多 ${ITEM_MAX_COUNT} 个事项`, icon: 'none' });
       return;
@@ -145,7 +111,7 @@ Page({
       placeholderText: '输入事项名称',
       success: (res) => {
         if (!res.confirm || !res.content?.trim()) return;
-        const newItem: Item = {
+        const newItem = {
           id: `item_${Date.now()}`,
           name: res.content.trim().slice(0, 10),
           icon: '📌',
@@ -159,21 +125,67 @@ Page({
     });
   },
 
-  /** 底部快速确认（有待确认事项时可用） */
-  onQuickConfirm() {
-    const pendingItems = this.data.items.filter((i: any) => !i.confirmed);
-    if (pendingItems.length === 0) {
-      wx.showToast({ title: '全部已确认', icon: 'none' });
+  onPhotoConfirm() {
+    if (!this.data.selectedItemId) {
+      wx.showToast({ title: '请先选择事项', icon: 'none' });
       return;
     }
-    // 弹出选择
-    const names = pendingItems.map((i: Item) => i.name);
-    wx.showActionSheet({
-      itemList: names,
+    this.confirmByCamera(this.data.selectedItemId);
+  },
+
+  onQuickConfirm() {
+    if (!this.data.selectedItemId) {
+      wx.showToast({ title: '请先选择事项', icon: 'none' });
+      return;
+    }
+    this.confirmByButton(this.data.selectedItemId);
+  },
+
+  confirmByButton(itemId) {
+    this._saveConfirmation(itemId, 'button', '');
+  },
+
+  confirmByCamera(itemId) {
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['camera'],
       success: (res) => {
-        const item = pendingItems[res.tapIndex];
-        this.confirmByButton(item.id);
+        const tempPath = res.tempFiles[0].tempFilePath;
+        const fsm = wx.getFileSystemManager();
+        const savedPath = `${wx.env.USER_DATA_PATH}/${Date.now()}.jpg`;
+        fsm.saveFile({
+          tempFilePath: tempPath,
+          filePath: savedPath,
+          success: () => {
+            this._saveConfirmation(itemId, 'camera', savedPath);
+          },
+          fail: () => {
+            wx.showToast({ title: '照片保存失败，请重试', icon: 'none' });
+          },
+        });
       },
     });
+  },
+
+  _saveConfirmation(itemId, method, photoPath) {
+    const conf = {
+      itemId,
+      date: todayStr(),
+      timestamp: timeStr(),
+      method,
+      photoPath: method === 'camera' ? photoPath : '',
+    };
+    const confirmations = get('memo_confirmations', []);
+    confirmations.push(conf);
+    saveConfirmations(confirmations);
+
+    const settings = get('memo_settings', { hasSeenOnboarding: false, lastOpenDate: '' });
+    settings.lastOpenDate = todayStr();
+    saveSettings(settings);
+
+    this.setData({ selectedItemId: '' });
+    this.loadData();
+    wx.showToast({ title: '已确认', icon: 'success' });
   },
 });

@@ -1,10 +1,14 @@
-// 历史记录页
-import type { Item, Confirmation } from '../../types';
 import { get } from '../../utils/storage';
 
 Page({
   data: {
-    historyGroups: [] as Array<{ date: string, records: Array<Confirmation & { itemName: string, itemIcon: string }> }>,
+    historyGroups: [],
+    statusBarHeight: 0,
+  },
+
+  onLoad() {
+    const sysInfo = wx.getWindowInfo();
+    this.setData({ statusBarHeight: sysInfo.statusBarHeight });
   },
 
   onShow() {
@@ -12,18 +16,18 @@ Page({
   },
 
   loadData() {
-    const items = get<Item[]>('memo_items', []);
-    const itemMap: Record<string, Item> = {};
+    const items = get('memo_items', []);
+    const itemMap = {};
     items.forEach(i => { itemMap[i.id] = i; });
 
-    const confirmations = get<Confirmation[]>('memo_confirmations', []);
-    // 按日期分组
-    const groups: Record<string, Array<Confirmation & { itemName: string, itemIcon: string }>> = {};
+    const confirmations = get('memo_confirmations', []);
+    const groups = {};
     confirmations.forEach(c => {
       if (!groups[c.date]) groups[c.date] = [];
       const item = itemMap[c.itemId];
       groups[c.date].push({
         ...c,
+        timestampShort: c.timestamp.slice(0, 5),
         itemName: item ? item.name : '已删除',
         itemIcon: item ? item.icon : '❓',
       });

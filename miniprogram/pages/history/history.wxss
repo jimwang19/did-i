@@ -1,89 +1,99 @@
 .page {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding-bottom: 80px;
+}
+
+.status-bar-placeholder {
   background: var(--color-bg);
 }
 
-.header {
-  padding: var(--space-lg) var(--space-md) var(--space-md);
+.page-header {
+  padding: 8px 20px 4px;
 }
 
 .header-title {
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
 }
 
-.list {
-  flex: 1;
-  padding: 0 var(--space-md);
+.history-list {
+  padding: 0 16px;
 }
 
 .day-group {
-  margin-bottom: var(--space-lg);
+  margin-bottom: 16px;
 }
 
 .day-header {
-  padding: var(--space-sm) 0;
-  margin-bottom: var(--space-sm);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.day-text {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-soft);
+  font-size: 12px;
+  color: var(--color-text-mid);
+  font-weight: 600;
+  padding: 8px 4px;
+  letter-spacing: 0.02em;
 }
 
 .record {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-md) var(--space-sm);
-  border-bottom: 1px solid var(--color-border);
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  margin-bottom: 4px;
+  border-left: 3px solid var(--color-success);
 }
 
 .record-icon {
-  font-size: var(--font-size-lg);
+  font-size: 20px;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
 }
 
 .record-info {
   flex: 1;
+  min-width: 0;
 }
 
 .record-name {
-  font-size: var(--font-size-md);
+  font-size: 15px;
+  font-weight: 500;
   color: var(--color-text);
   display: block;
 }
 
-.record-time {
-  font-size: var(--font-size-xs);
+.record-meta {
+  font-size: 12px;
   color: var(--color-text-soft);
+  margin-top: 2px;
 }
 
-.record-method {
-  font-size: var(--font-size-lg);
+.record-badge {
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
 .empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--space-xl) 0;
+  padding: 48px 0;
 }
 
 .empty-icon {
   font-size: 48px;
-  margin-bottom: var(--space-md);
+  margin-bottom: 12px;
 }
 
 .empty-text {
-  font-size: var(--font-size-lg);
+  font-size: 15px;
   color: var(--color-text-soft);
 }

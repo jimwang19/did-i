@@ -1,7 +1,8 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/history/history"
+    "pages/history/history",
+    "pages/settings/settings"
   ],
   "window": {
     "navigationBarTitleText": "过门不忘",
@@ -11,18 +12,22 @@
     "backgroundTextStyle": "light"
   },
   "tabBar": {
-    "color": "#8899a4",
+    "color": "#8b949e",
     "selectedColor": "#4ecdc4",
     "backgroundColor": "#0c0f14",
     "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "确认"
+        "text": "今日"
       },
       {
         "pagePath": "pages/history/history",
         "text": "历史"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置"
       }
     ]
   }

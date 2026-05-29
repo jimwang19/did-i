@@ -1,142 +1,283 @@
 .page {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding-bottom: 170px;
+}
+
+.status-bar-placeholder {
   background: var(--color-bg);
 }
 
-.header {
-  padding: var(--space-lg) var(--space-md) var(--space-md);
+/* ========== Header ========== */
+.page-header {
+  padding: 8px 20px 4px;
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
+  gap: 10px;
+  background: var(--color-surface);
 }
 
 .header-title {
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
 }
 
-.header-date {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-soft);
+.date-sub {
+  font-size: 12px;
+  color: var(--color-text-mid);
 }
 
-.list {
-  flex: 1;
-  padding: 0 var(--space-md);
-}
-
-.item-card {
+/* ========== Filter Bar ========== */
+.filter-bar {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-md);
-  margin-bottom: var(--space-sm);
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
+  justify-content: space-between;
+  padding: 10px 16px 6px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--color-border);
+  font-size: 12px;
+  color: var(--color-text-mid);
 }
 
-.item-card.confirmed {
+.filter-chip.active {
+  background: var(--color-accent-soft);
+  border-color: rgba(78, 205, 196, 0.25);
+  color: var(--color-accent);
+}
+
+.filter-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.filter-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-count {
+  font-size: 12px;
+  color: var(--color-text-mid);
+  font-weight: 500;
+}
+
+/* ========== Item Card ========== */
+.confirm-panel {
+  padding: 0 16px;
+}
+
+.confirm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 6px;
+  position: relative;
+  border-left: 3px solid transparent;
+}
+
+.confirm-item:active {
+  transform: scale(0.98);
+}
+
+/* Confirmed: green left border + soft green bg */
+.confirm-item.confirmed {
   background: var(--color-success-soft);
-  border-color: rgba(129, 199, 132, 0.2);
+  border-left-color: var(--color-success);
 }
 
-.item-card.pending {
+/* Pending: gray left border + soft gray bg */
+.confirm-item.pending {
   background: var(--color-pending-soft);
+  border-left-color: var(--color-pending);
+}
+
+/* Selected: accent highlight */
+.confirm-item.selected {
+  background: var(--color-accent-soft);
+  border-left-color: var(--color-accent);
+  box-shadow: 0 0 0 1px rgba(78, 205, 196, 0.15);
 }
 
 .item-icon {
-  font-size: var(--font-size-xl);
-  width: 40px;
-  height: 40px;
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
   flex-shrink: 0;
 }
 
-.item-info {
+.info {
   flex: 1;
   min-width: 0;
 }
 
-.item-name {
-  font-size: var(--font-size-md);
+.name {
+  font-size: 15px;
   font-weight: 500;
   color: var(--color-text);
-  display: block;
 }
 
-.item-time {
-  font-size: var(--font-size-xs);
+.meta {
+  font-size: 12px;
   color: var(--color-text-soft);
-  margin-top: var(--space-xs);
-  display: block;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.pending-text {
+.status-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-success);
+}
+
+.pending-badge {
   color: var(--color-pending);
+  background: rgba(84, 110, 122, 0.2);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 600;
 }
 
-.item-status {
-  font-size: var(--font-size-lg);
+/* ========== Actions ========== */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
 }
 
-.empty {
+.check-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.12);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: var(--space-xl) 0;
+  justify-content: center;
+  flex-shrink: 0;
+  color: transparent;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: var(--space-md);
+.check-btn.confirmed {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-bg);
 }
 
-.empty-text {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-soft);
-  margin-bottom: var(--space-xs);
-}
-
-.empty-hint {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-mid);
-}
-
-.bottom-bar {
+/* ========== Add Item Row ========== */
+.add-item {
   display: flex;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin: 6px 0 0;
+  border-top: 1px dashed var(--color-border);
 }
 
-.btn-add {
-  flex: 1;
-  background: var(--color-surface);
-  color: var(--color-accent);
-  border: 1px solid var(--color-border-accent);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-md);
-  height: 44px;
-  line-height: 44px;
+.add-icon {
+  font-size: 16px;
+  color: var(--color-text-mid);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-confirm {
+.add-label {
+  font-size: 14px;
+  color: var(--color-text-mid);
+  font-weight: 500;
+}
+
+/* ========== Bottom Spacer ========== */
+.bottom-spacer {
+  height: 20px;
+}
+
+/* ========== Bottom Bar (fixed above tabBar) ========== */
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 50px;
+  padding: 12px 20px;
+  display: flex;
+  gap: 10px;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 100;
+}
+
+.btn {
   flex: 1;
-  background: var(--color-accent);
-  color: #0c0f14;
-  border: none;
+  padding: 14px 16px;
   border-radius: var(--radius-md);
-  font-size: var(--font-size-md);
+  font-size: 14px;
   font-weight: 600;
-  height: 44px;
-  line-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.btn-secondary {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.btn.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ========== Selected Hint (above bottom bar) ========== */
+.selected-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 110px;
+  text-align: center;
+  padding: 8px 20px;
+  font-size: 11px;
+  color: var(--color-text-mid);
+  background: var(--color-bg);
+  z-index: 100;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  transition: all 0.15s ease;
+}
+
+.selected-hint.active {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
 }
