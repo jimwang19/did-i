@@ -60,6 +60,77 @@ python -m http.server 8080
 - `PHOTO_KEEP_DAYS = 7`（照片保留天数）
 - `ICON_PRESETS`：16 个预设 emoji
 
+## Linear 工作流规范
+
+Linear 是开发过程管理中心（项目: memotool，团队: Memotool）。
+
+### Issue 状态流转
+
+Backlog → Todo → In Progress → In Review → Done
+
+### Done 规则
+
+- `Done` 只能在 `main` 分支完成验证后再改
+- 默认由产品经理在 `main` 分支验收通过后确认关闭
+- 若尚未完成 `main` 分支验证，Issue 先停留在 `In Review`
+
+### Activity Comment 规范
+
+在以下 5 个关键节点必须留 Comment，格式统一：
+
+| 节点 | 格式 | 何时使用 |
+|------|------|----------|
+| 创建 | `📝 创建: <为什么建这个 Issue>` | save_issue 创建时 |
+| 开始 | `🚀 开始: <当前在做什么>` | 状态改为 In Progress 时 |
+| 评审 | `👀 评审: <改了什么，怎么验证>` | 状态改为 In Review 时 |
+| 完成 | `✅ 完成: <最终结果>` | 状态改为 Done 时 |
+| 阻塞 | `⚠️ 阻塞: <什么问题>` | 遇到阻碍时 |
+
+### 操作规则
+
+- **创建 Issue**: 创建后立即追加 `📝 创建:` Comment **+ 发项目级 Discussion**（`save_comment` + `projectId`）
+- **状态变更**: 每次改状态时追加对应 Comment **+ 发项目级 Discussion**（`save_comment` + `projectId`）
+- **Done 限制**: 只有产品经理在 `main` 分支验证通过后，才允许把 Issue 改成 `Done`
+- **文档更新**: Spec/UI Spec/风格指南/PRD 有实质修改时，**发项目级 Discussion**（`save_comment` + `projectId`）
+- **内容更新**: 仅在修改了需求范围/验收标准时追加 `🔄 更新:` Comment
+- **不需要 Comment**: 纯标签/优先级变更（Linear 自动记录）
+
+### 项目级 Status Update 规范
+
+> ⚠️ **MCP 已知问题**：`save_status_update` 工具不可用（报 `Tool not found`）。
+> **替代方案**：使用 `save_comment` + `projectId: "memotool"` 在项目 Discussion 区发评论，效果等同 Status Update。
+
+每次操作规则要求发 Status Update 时，必须立即调用 `save_comment({ projectId: "memotool", body: "..." })`，**不等用户提醒**。每条动态是一句有意义的总结，不写流水账。
+
+**核心原则**：像 git log 一样频繁，像 commit message 一样精炼。
+
+**格式（两种）**：
+
+简短格式（大多数场景，1-3行）：
+```text
+✅ MEM-XX 功能名 — 做了什么，结果是什么
+决策: 关键决策内容（如有）
+```
+
+完整格式（里程碑/方向调整/周汇总时使用）：
+```text
+## 进展
+- MEM-XX 功能完成
+
+## 决策
+- **<决策名>**：<决策内容及原因>
+
+## 风险
+- 无
+
+## 下一步
+- ...
+```
+
+**健康度**：onTrack 🟢 / atRisk 🟡 / offTrack 🔴
+
+**禁止**：状态停在 In Progress 超过一个工作日而没有 comment 更新。
+
 ## 测试规范
 
 **每次改完必须验证，再标记 In Review。**

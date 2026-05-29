@@ -127,6 +127,25 @@ docs/
 - In Review / Done 状态变更前，必须在对应平台实际运行验证
 - MVP 验证指标：7日留存率 > 30% 则需求成立
 
+## Linear 工作流
+
+> 完整规则见 [AGENTS.md](AGENTS.md#linear-工作流规范)，以下为快速参考。
+
+| 时机 | 操作 |
+|------|------|
+| 开始处理 issue | 状态 → **In Progress** + 留 `🚀 开始:` Comment + 发项目 Discussion |
+| 本地测试通过 | 状态 → **In Review** + 留 `👀 评审:` Comment + 发项目 Discussion |
+| 验收通过 | 状态 → **Done** + 留 `✅ 完成:` Comment + 发项目 Discussion |
+| 发现新问题 | 创建 sub-issue + 留 `📝 创建:` Comment，勿口头描述 |
+| 遇到阻碍 | 留 `⚠️ 阻塞:` Comment + 发项目 Discussion |
+
+### MCP 已知问题
+
+- **`save_status_update` 不可用**：该工具报 `Tool not found` 错误。替代方案：使用 `save_comment` + `projectId: "memotool"` 在项目 Discussion 区发评论，效果等同 Status Update
+- **`save_document` 的 `icon` 参数**：传 emoji 字符串会报 `icon is not a valid icon`。替代方案：省略 `icon` 参数，或传 `:emoji_name:` 格式（如 `:clipboard:`），建议直接不传
+
+> 详见 [.copilot-memory/linear-workarounds.md](.copilot-memory/linear-workarounds.md)
+
 ## Testing
 
 **原则：每次改完代码必须在目标平台运行验证，再改状态为 In Review。**

@@ -13,3 +13,6 @@ miniprogram-sim.png
 # Mis-named artifact files
 jimaiworkmemo-toolscriptsexport-slides.ps1
 jimaiworkmemo-toolscriptsexport-slides.vbs
+
+# MCP config (contains API keys)
+.vscode/mcp.json
