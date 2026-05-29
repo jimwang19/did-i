@@ -52,6 +52,20 @@
   font-weight: 500;
 }
 
+.item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-btn {
+  font-size: 13px;
+  color: var(--color-accent);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+}
+
 .delete-btn {
   font-size: 13px;
   color: var(--color-red);

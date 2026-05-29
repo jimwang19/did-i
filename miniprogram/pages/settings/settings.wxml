@@ -8,6 +8,7 @@
           <text class="item-name">{{item.name}}</text>
         </view>
         <view class="item-right">
+          <view class="edit-btn" data-id="{{item.id}}" catchtap="onEditItem">编辑</view>
           <view class="delete-btn" data-id="{{item.id}}" catchtap="onDeleteItem">删除</view>
         </view>
       </view>

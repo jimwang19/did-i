@@ -1,5 +1,5 @@
 import { get, saveItems } from '../../utils/storage';
-import { ITEM_MAX_COUNT, ICON_PRESETS } from '../../utils/constants';
+import { ITEM_MAX_COUNT, ITEM_NAME_MAX } from '../../utils/constants';
 
 Page({
   data: {
@@ -13,6 +13,27 @@ Page({
   loadData() {
     const items = get('memo_items', []);
     this.setData({ items });
+  },
+
+  onEditItem(e) {
+    const { id } = e.currentTarget.dataset;
+    const items = get('memo_items', []);
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    wx.showModal({
+      title: '修改名称',
+      editable: true,
+      content: item.name,
+      success: (res) => {
+        if (!res.confirm) return;
+        const newName = res.content?.trim().slice(0, ITEM_NAME_MAX);
+        if (!newName) return;
+        item.name = newName;
+        saveItems(items);
+        this.loadData();
+      },
+    });
   },
 
   onDeleteItem(e) {

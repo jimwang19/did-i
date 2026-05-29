@@ -6,6 +6,22 @@
     <text class="header-title">历史</text>
   </view>
 
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <picker mode="selector" range="{{itemLabels}}" value="{{filterItemIndex}}" bindchange="onItemFilterChange">
+      <view class="filter-chip {{filterItemIndex > 0 ? 'active' : ''}}">
+        <text>{{itemLabels[filterItemIndex]}}</text>
+        <text class="filter-arrow">▾</text>
+      </view>
+    </picker>
+    <picker mode="selector" range="{{daysLabels}}" value="{{filterDaysIndex}}" bindchange="onDaysFilterChange">
+      <view class="filter-chip {{filterDaysIndex > 0 ? 'active' : ''}}">
+        <text>{{daysLabels[filterDaysIndex]}}</text>
+        <text class="filter-arrow">▾</text>
+      </view>
+    </picker>
+  </view>
+
   <view class="history-list">
     <view class="day-group" wx:for="{{historyGroups}}" wx:key="date">
       <view class="day-header">{{item.date}}</view>
