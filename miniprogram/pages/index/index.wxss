@@ -1,0 +1,283 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding-bottom: 170px;
+}
+
+.status-bar-placeholder {
+  background: var(--color-bg);
+}
+
+/* ========== Header ========== */
+.page-header {
+  padding: 8px 20px 4px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  background: var(--color-surface);
+}
+
+.header-title {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.date-sub {
+  font-size: 12px;
+  color: var(--color-text-mid);
+}
+
+/* ========== Filter Bar ========== */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 6px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border);
+  font-size: 12px;
+  color: var(--color-text-mid);
+}
+
+.filter-chip.active {
+  background: var(--color-accent-soft);
+  border-color: rgba(78, 205, 196, 0.25);
+  color: var(--color-accent);
+}
+
+.filter-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.filter-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-count {
+  font-size: 12px;
+  color: var(--color-text-mid);
+  font-weight: 500;
+}
+
+/* ========== Item Card ========== */
+.confirm-panel {
+  padding: 0 16px;
+}
+
+.confirm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 6px;
+  position: relative;
+  border-left: 3px solid transparent;
+}
+
+.confirm-item:active {
+  transform: scale(0.98);
+}
+
+/* Confirmed: green left border + soft green bg */
+.confirm-item.confirmed {
+  background: var(--color-success-soft);
+  border-left-color: var(--color-success);
+}
+
+/* Pending: gray left border + soft gray bg */
+.confirm-item.pending {
+  background: var(--color-pending-soft);
+  border-left-color: var(--color-pending);
+}
+
+/* Selected: accent highlight */
+.confirm-item.selected {
+  background: var(--color-accent-soft);
+  border-left-color: var(--color-accent);
+  box-shadow: 0 0 0 1px rgba(78, 205, 196, 0.15);
+}
+
+.item-icon {
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--color-text-soft);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-success);
+}
+
+.pending-badge {
+  color: var(--color-pending);
+  background: rgba(84, 110, 122, 0.2);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 600;
+}
+
+/* ========== Actions ========== */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.check-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: transparent;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.check-btn.confirmed {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-bg);
+}
+
+/* ========== Add Item Row ========== */
+.add-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin: 6px 0 0;
+  border-top: 1px dashed var(--color-border);
+}
+
+.add-icon {
+  font-size: 16px;
+  color: var(--color-text-mid);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-label {
+  font-size: 14px;
+  color: var(--color-text-mid);
+  font-weight: 500;
+}
+
+/* ========== Bottom Spacer ========== */
+.bottom-spacer {
+  height: 20px;
+}
+
+/* ========== Bottom Bar (fixed above tabBar) ========== */
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 50px;
+  padding: 12px 20px;
+  display: flex;
+  gap: 10px;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 100;
+}
+
+.btn {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.btn-secondary {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.btn.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ========== Selected Hint (above bottom bar) ========== */
+.selected-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 110px;
+  text-align: center;
+  padding: 8px 20px;
+  font-size: 11px;
+  color: var(--color-text-mid);
+  background: var(--color-bg);
+  z-index: 100;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  transition: all 0.15s ease;
+}
+
+.selected-hint.active {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}

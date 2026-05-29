@@ -1,0 +1,112 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding-bottom: 80px;
+}
+
+.section {
+  margin-top: 20px;
+}
+
+.section-title {
+  font-size: 12px;
+  color: var(--color-text-mid);
+  font-weight: 600;
+  padding: 0 16px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.item-list {
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-icon {
+  font-size: 20px;
+}
+
+.item-name {
+  font-size: 15px;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.delete-btn {
+  font-size: 13px;
+  color: var(--color-red);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.add-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  margin-top: 1px;
+}
+
+.add-icon {
+  font-size: 18px;
+  color: var(--color-accent);
+  width: 20px;
+  text-align: center;
+}
+
+.add-text {
+  font-size: 15px;
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.about-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.about-label {
+  font-size: 15px;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.about-version {
+  font-size: 13px;
+  color: var(--color-text-mid);
+}
+
+.about-desc {
+  font-size: 13px;
+  color: var(--color-text-soft);
+  padding: 12px 16px;
+  line-height: 1.6;
+}

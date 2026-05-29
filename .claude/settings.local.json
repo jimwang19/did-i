@@ -1,4 +1,7 @@
 {
+  "env": {
+    "ECC_GATEGUARD": "off"
+  },
   "permissions": {
     "allow": [
       "Bash(npx skills *)",
@@ -8,7 +11,53 @@
       "Bash(python -m http.server 58999)",
       "mcp__plugin_ecc_playwright__browser_navigate",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(curl *)",
+      "mcp__plugin_ecc_sequential-thinking__sequentialthinking",
+      "Bash(npx playwright *)",
+      "Bash(python3 *)",
+      "Bash(npx serve *)",
+      "Bash(/c/Users/jimwa/AppData/Local/npm-cache/_npx/e41f203b7505f1fb/node_modules/playwright-core/.local-browsers/chromium-1223/chrome.exe --no-sandbox --headless --screenshot=\"D:/jim/aiwork/memo-tool/test-screenshot.png\" --window-size=1200,800 \"http://localhost:17622/prototype.html\")",
+      "Bash(git checkout *)",
+      "Skill(ecc:checkpoint)",
+      "mcp__plugin_ecc_playwright__browser_run_code",
+      "Read(//usr/**)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Read(//c/Program Files \\(x86\\)/Google/Chrome/Application/**)",
+      "Skill(update-config)",
+      "WebSearch",
+      "Bash(git *)",
+      "Bash(echo \"EXIT:$?\")",
+      "WebFetch(domain:skills.sh)",
+      "Skill(pptx)",
+      "Bash(npm list *)",
+      "Bash(npm install *)",
+      "Bash(node *)",
+      "Bash(python *)",
+      "Read(//c/Program Files/LibreOffice/program/**)",
+      "Read(//c/Program Files \\(x86\\)/LibreOffice/program/**)",
+      "Bash(cscript //Nologo \"scripts/export-slides.vbs\" \"$\\(pwd\\)/scripts/过门不忘-项目介绍.pptx\" \"$\\(pwd\\)/scripts/slides-preview\")",
+      "Bash(cscript //Nologo \"D:/jim/aiwork/memo-tool/scripts/export-slides.vbs\")",
+      "Bash(powershell *)",
+      "Read(//c/Users/jimwa/.agents/skills/ui-ux-pro-max/**)",
+      "Bash(pwsh -ExecutionPolicy Bypass -File ./export-slides.ps1)",
+      "Bash(pip install *)",
+      "Bash(where chrome *)",
+      "Bash(reg query *)",
+      "Bash(npm ls *)",
+      "Bash(ls node_modules/playwright)",
+      "Bash(taskkill /IM wechatwebdevtools.exe /F)",
+      "Bash(C:/Windows/System32/taskkill.exe /IM wechatwebdevtools.exe /F)",
+      "Bash(cmd /c \"d:\\\\Program Files \\(x86\\)\\\\Tencent\\\\微信web开发者工具\\\\cli.bat\" -h)",
+      "Bash(cmd *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \"9420\")",
+      "Bash(printf '@echo off\\\\r\\\\n\"d:\\\\\\\\Program Files \\(x86\\)\\\\\\\\Tencent\\\\\\\\微信web开发者工具\\\\\\\\cli.bat\" auto --project \"D:\\\\\\\\jim\\\\\\\\aiwork\\\\\\\\memo-tool\\\\\\\\.claude\\\\\\\\worktrees\\\\\\\\feat+mvp-miniprogram\" --auto-port 9420 --port 10089\\\\r\\\\n')",
+      "Bash(iconv -f UTF-8 -t GBK)",
+      "Bash(xxd)",
+      "Bash(chcp 65001)",
+      "Bash(d:\\\\Program Files \\(x86\\)\\\\Tencent\\\\微信web开发者工具\\\\cli.bat auto *)",
+      "Bash(d:\\\\Program Files \\(x86\\)\\\\Tencent\\\\微信web开发者工具\\\\cli.bat preview *)"
     ]
   }
 }

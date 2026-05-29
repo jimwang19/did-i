@@ -1,0 +1,70 @@
+<view class="page">
+  <!-- 状态栏占位 -->
+  <view class="status-bar-placeholder" style="height: {{statusBarHeight}}px;"></view>
+
+  <!-- 顶部 Header -->
+  <view class="page-header">
+    <text class="header-title">今日</text>
+    <text class="date-sub">{{todayDisplay}}</text>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-chip {{hideConfirmed ? 'active' : ''}}" bindtap="toggleFilter">
+      <text class="filter-icon">●</text>
+      <text class="filter-label"> 隐藏已确认</text>
+    </view>
+    <view class="filter-right">
+      <text class="filter-count">{{pendingCount}} 项待确认</text>
+    </view>
+  </view>
+
+  <!-- 事项列表 -->
+  <view class="confirm-panel">
+    <view
+      wx:for="{{displayItems}}"
+      wx:key="id"
+      class="confirm-item {{item.confirmed ? 'confirmed' : 'pending'}} {{item.id === selectedItemId ? 'selected' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="onItemTap"
+    >
+      <view class="item-icon">{{item.icon}}</view>
+      <view class="info">
+        <view class="name">{{item.name}}</view>
+        <view class="meta">
+          <text class="status-badge" wx:if="{{item.confirmed}}">✅ 已确认</text>
+          <text class="status-badge pending-badge" wx:else>⏳ 待确认</text>
+          <text wx:if="{{item.confirmed}}">{{item.confirmTimeShort}}</text>
+          <text wx:if="{{item.confirmed && item.confirmMethod === 'camera'}}"> · 拍照</text>
+        </view>
+      </view>
+      <view class="actions">
+        <view class="check-btn {{item.confirmed ? 'confirmed' : ''}}" data-id="{{item.id}}" catchtap="onCheckTap">✓</view>
+      </view>
+    </view>
+
+    <!-- 添加新事项 -->
+    <view class="add-item" bindtap="onAddItem">
+      <text class="add-icon">+</text>
+      <text class="add-label">添加新事项</text>
+    </view>
+
+    <!-- 底部留白，避免被底部栏遮挡 -->
+    <view class="bottom-spacer"></view>
+  </view>
+
+  <!-- 底部操作栏 (fixed) -->
+  <view class="bottom-bar">
+    <view class="btn btn-primary {{selectedItemId ? '' : 'disabled'}}" bindtap="onPhotoConfirm">
+      📷 拍照确认
+    </view>
+    <view class="btn btn-secondary {{selectedItemId ? '' : 'disabled'}}" bindtap="onQuickConfirm">
+      ✓ 快速确认
+    </view>
+  </view>
+
+  <!-- 选择提示 -->
+  <view class="selected-hint {{selectedItemId ? 'active' : ''}}">
+    <text>{{selectedItemId ? '已选择事项，点击按钮确认' : '点选任意事项，底部按钮确认该项'}}</text>
+  </view>
+</view>

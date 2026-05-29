@@ -1,0 +1,34 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/history/history",
+    "pages/settings/settings"
+  ],
+  "window": {
+    "navigationBarTitleText": "过门不忘",
+    "navigationBarBackgroundColor": "#0c0f14",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0c0f14",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#8b949e",
+    "selectedColor": "#4ecdc4",
+    "backgroundColor": "#0c0f14",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "今日"
+      },
+      {
+        "pagePath": "pages/history/history",
+        "text": "历史"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置"
+      }
+    ]
+  }
+}

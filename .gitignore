@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Claude internal files
+.claude/projects/
+.claude/worktrees/
+.claude/settings.local.json
+
+# Build / temp outputs
+miniprogram-sim.png
+
+# Mis-named artifact files
+jimaiworkmemo-toolscriptsexport-slides.ps1
+jimaiworkmemo-toolscriptsexport-slides.vbs

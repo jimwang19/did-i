@@ -1472,25 +1472,6 @@ body::before {
         </div>
       </div>
 
-      <!-- Bottom Sheet Overlay -->
-      <div class="bottom-sheet-overlay" id="sheet-overlay" onclick="closeSheet(event)">
-        <div class="bottom-sheet">
-          <div class="sheet-handle"></div>
-          <h3 id="sheet-title">选择确认方式</h3>
-          <div class="sheet-sub" id="sheet-sub">选择确认方式</div>
-          <div class="sheet-actions">
-            <button class="sheet-btn sheet-btn-camera" onclick="doConfirm('camera')">
-              <span class="btn-icon">📷</span>
-              <div><div>拍照确认</div><div class="btn-desc">拍摄照片作为证据</div></div>
-            </button>
-            <button class="sheet-btn sheet-btn-quick" onclick="doConfirm('quick')">
-              <span class="btn-icon">✓</span>
-              <div><div>快速确认</div><div class="btn-desc">一键记录"已做"</div></div>
-            </button>
-          </div>
-        </div>
-      </div>
-
       <!-- Detail Sheet Overlay — 确认记录详情 -->
       <div class="detail-sheet-overlay" id="detail-overlay" onclick="closeDetail(event)">
         <div class="detail-sheet" onclick="event.stopPropagation()">
@@ -1610,7 +1591,7 @@ body::before {
 
         <div class="bottom-bar">
           <button class="btn btn-secondary" onclick="goBack()">取消</button>
-          <button class="btn btn-primary">保存</button>
+          <button class="btn btn-primary" onclick="saveNewItem()">保存</button>
         </div>
       </div>
     </div>
@@ -1714,15 +1695,27 @@ function addEntry(btn, emoji, name) {
 let selectedEntry = null;
 function selectEntry(el) {
   const panel = document.getElementById('confirm-list');
+
+  // 已确认项直接开详情，不走选中流程
+  if (el.classList.contains('confirmed')) {
+    panel.querySelectorAll('.confirm-item').forEach(function(item) { item.classList.remove('selected'); });
+    selectedEntry = null;
+    updateBottomBarHint();
+    openDetailSheet(el);
+    return;
+  }
+
+  // 待确认项：再次点击已选中的则取消选中
+  if (el === selectedEntry) {
+    el.classList.remove('selected');
+    selectedEntry = null;
+    updateBottomBarHint();
+    return;
+  }
+
   panel.querySelectorAll('.confirm-item').forEach(function(item) { item.classList.remove('selected'); });
   el.classList.add('selected');
   selectedEntry = el;
-
-  // 已确认项打开详情面板，待确认项准备底部按钮确认
-  if (el.classList.contains('confirmed')) {
-    openDetailSheet(el);
-  }
-
   updateBottomBarHint();
 }
 
@@ -1955,8 +1948,65 @@ function closeDetailSheet() {
   document.getElementById('detail-overlay').classList.remove('active');
 }
 
-function showAddItem() { alert('打开添加事项页面（见第二台设备预览）'); }
-function goBack() { alert('返回主界面'); }
+function showAddItem() {
+  var dev2 = document.getElementById('device-2');
+  var input = dev2.querySelector('.form-input');
+  // 清空表单
+  input.value = '';
+  dev2.querySelectorAll('.emoji-pick').forEach(function(p) { p.classList.remove('selected'); });
+  dev2.querySelectorAll('.freq-chip').forEach(function(c) { c.classList.remove('selected'); });
+  dev2.querySelector('.freq-chip').classList.add('selected'); // 默认1次
+  dev2.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(function() { input.focus(); }, 400);
+}
+
+function saveNewItem() {
+  var dev2 = document.getElementById('device-2');
+  var name = dev2.querySelector('.form-input').value.trim();
+  if (!name) { dev2.querySelector('.form-input').focus(); return; }
+  var selectedEmoji = dev2.querySelector('.emoji-pick.selected');
+  var emoji = selectedEmoji ? selectedEmoji.textContent : '📌';
+  var panel = document.getElementById('confirm-list');
+  var addItem = panel.querySelector('.add-item');
+  var existing = panel.querySelectorAll('.confirm-item');
+  var maxSeq = 0;
+  existing.forEach(function(item) {
+    var badge = item.querySelector('.seq-badge');
+    if (badge && item.querySelector('.name').textContent.indexOf(name) === 0) {
+      var n = parseInt(badge.textContent.replace('#',''), 10);
+      if (n > maxSeq) maxSeq = n;
+    }
+  });
+  var seq = '#' + (maxSeq + 1);
+  var newItem = document.createElement('div');
+  newItem.className = 'confirm-item pending';
+  newItem.onclick = function() { selectEntry(this); };
+  newItem.innerHTML =
+    '<div class="icon">' + emoji + '</div>' +
+    '<div class="info">' +
+      '<div class="name">' + name + '<span class="seq-badge">' + seq + '</span></div>' +
+      '<div class="meta"><span class="status-badge">⏳ 待确认</span></div>' +
+    '</div>' +
+    '<div class="actions">' +
+      '<div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>' +
+      '<div class="check-btn" data-tooltip="直接确认" onclick="event.stopPropagation(); toggleConfirm(this.closest(\'.confirm-item\'))">✓</div>' +
+      '<div class="add-btn" onclick="event.stopPropagation(); addEntry(this, \'' + emoji + '\', \'' + name + '\')">+</div>' +
+    '</div>';
+  newItem.style.opacity = '0';
+  newItem.style.transform = 'translateY(-8px)';
+  addItem.parentNode.insertBefore(newItem, addItem);
+  requestAnimationFrame(function() {
+    newItem.style.transition = 'opacity .2s ease, transform .2s ease';
+    newItem.style.opacity = '1';
+    newItem.style.transform = 'translateY(0)';
+  });
+  updatePendingCount();
+  goBack();
+}
+
+function goBack() {
+  document.getElementById('device-1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
 // ═══ Filter ═══
 let showConfirmed = true; // 默认显示全部（包括已确认）
@@ -2075,9 +2125,9 @@ function buildAnnotations() {
     },
     {
       num: 8, type: '动效',
-      target: '#device-1 .bottom-sheet-overlay',
-      title: 'Bottom Sheet 弹出',
-      body: 'overlay: opacity .25s ease<br>sheet: translateY 100%→0<br>.3s cubic-bezier(.4,0,.2,1)<br>handle 提示可下拉关闭'
+      target: '#device-1 .detail-sheet-overlay',
+      title: '详情 Bottom Sheet',
+      body: '已确认项点击弹出详情<br>overlay: opacity .25s ease<br>sheet: translateY 100%→0<br>.3s cubic-bezier(.4,0,.2,1)'
     },
     {
       num: 9, type: '表单',
