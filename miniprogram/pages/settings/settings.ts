@@ -1,9 +1,11 @@
 import { get, saveItems, saveConfirmations } from '../../utils/storage';
-import { ITEM_MAX_COUNT, ITEM_NAME_MAX } from '../../utils/constants';
+import { ITEM_MAX_COUNT } from '../../utils/constants';
 
 Page({
   data: {
     items: [],
+    editorVisible: false,
+    editorItem: null as any,
   },
 
   onShow() {
@@ -20,20 +22,7 @@ Page({
     const items = get('memo_items', []);
     const item = items.find(i => i.id === id);
     if (!item) return;
-
-    wx.showModal({
-      title: '修改名称',
-      editable: true,
-      content: item.name,
-      success: (res) => {
-        if (!res.confirm) return;
-        const newName = res.content?.trim().slice(0, ITEM_NAME_MAX);
-        if (!newName) return;
-        item.name = newName;
-        saveItems(items);
-        this.loadData();
-      },
-    });
+    this.setData({ editorVisible: true, editorItem: { ...item } });
   },
 
   onDeleteItem(e) {
@@ -56,25 +45,32 @@ Page({
       wx.showToast({ title: `最多 ${ITEM_MAX_COUNT} 个事项`, icon: 'none' });
       return;
     }
+    this.setData({ editorVisible: true, editorItem: null });
+  },
 
-    wx.showModal({
-      title: '添加事项',
-      editable: true,
-      placeholderText: '输入事项名称',
-      success: (res) => {
-        if (!res.confirm || !res.content?.trim()) return;
-        const newItem = {
-          id: `item_${Date.now()}`,
-          name: res.content.trim().slice(0, 10),
-          icon: '📌',
-          sortOrder: items.length,
-          createdAt: new Date().toISOString(),
-        };
-        items.push(newItem);
-        saveItems(items);
-        this.loadData();
-      },
-    });
+  onEditorConfirm(e: any) {
+    const { name, icon } = e.detail;
+    const items = get('memo_items', []);
+    const editing = this.data.editorItem;
+    if (editing) {
+      const item = items.find(i => i.id === editing.id);
+      if (item) { item.name = name; item.icon = icon; }
+    } else {
+      items.push({
+        id: `item_${Date.now()}`,
+        name,
+        icon,
+        sortOrder: items.length,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    saveItems(items);
+    this.setData({ editorVisible: false, editorItem: null });
+    this.loadData();
+  },
+
+  onEditorClose() {
+    this.setData({ editorVisible: false, editorItem: null });
   },
 
   onClearHistory() {

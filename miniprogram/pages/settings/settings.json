@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "设置"
+  "navigationBarTitleText": "设置",
+  "usingComponents": {
+    "item-editor": "/components/item-editor/item-editor"
+  }
 }

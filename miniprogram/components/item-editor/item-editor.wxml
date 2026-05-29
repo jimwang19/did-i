@@ -1,0 +1,41 @@
+<view class="mask {{visible ? 'visible' : ''}}" bindtap="onMaskTap">
+  <view class="sheet {{visible ? 'visible' : ''}}" catchtap="">
+    <view class="handle"></view>
+
+    <view class="sheet-title">{{editItem ? '编辑事项' : '添加事项'}}</view>
+
+    <!-- 名称输入 -->
+    <view class="field">
+      <text class="field-label">名称</text>
+      <input
+        class="name-input"
+        value="{{name}}"
+        placeholder="输入事项名称"
+        maxlength="{{maxLen}}"
+        bindinput="onNameInput"
+        confirm-type="done"
+      />
+      <text class="char-count">{{name.length}}/{{maxLen}}</text>
+    </view>
+
+    <!-- 图标选择网格 -->
+    <view class="field">
+      <text class="field-label">图标</text>
+      <view class="icon-grid">
+        <view
+          wx:for="{{icons}}"
+          wx:key="*this"
+          class="icon-cell {{item === selectedIcon ? 'selected' : ''}}"
+          data-icon="{{item}}"
+          bindtap="onIconTap"
+        >{{item}}</view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="actions">
+      <view class="btn btn-cancel" bindtap="onClose">取消</view>
+      <view class="btn btn-confirm {{name.length === 0 ? 'disabled' : ''}}" bindtap="onConfirm">确认</view>
+    </view>
+  </view>
+</view>

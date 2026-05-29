@@ -19,6 +19,14 @@
     </view>
   </view>
 
+  <!-- 新增/编辑事项弹层 -->
+  <item-editor
+    visible="{{editorVisible}}"
+    editItem="{{editorItem}}"
+    bind:confirm="onEditorConfirm"
+    bind:close="onEditorClose"
+  ></item-editor>
+
   <view class="section">
     <view class="section-title">关于</view>
     <view class="about-item">
