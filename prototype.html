@@ -10,31 +10,33 @@
 :root {
   /* ── Surface ── */
   --bg: #0c0f14;
-  --surface: #151920;
-  --surface-elevated: #1c2128;
-  --border: rgba(255,255,255,.06);
+  --surface: #161b22;
+  --surface-elevated: #1c2129;
+  --border: rgba(255,255,255,.08);
   --border-strong: rgba(255,255,255,.12);
 
   /* ── Accent (action) ── */
   --accent: #4ecdc4;
-  --accent-soft: rgba(78,205,196,.12);
+  --accent-soft: rgba(78,205,196,.15);
   --accent-glow: rgba(78,205,196,.25);
 
   /* ── Status ── */
   --success: #81c784;
-  --success-soft: rgba(129,199,132,.08);
+  --success-soft: rgba(129,199,132,.12);
   --success-border: rgba(129,199,132,.25);
   --pending: #546e7a;
   --pending-soft: rgba(84,110,122,.15);
 
   /* ── Text ── */
-  --text: #e8edf2;
-  --text-mid: #8899a6;
-  --text-soft: #5a6f7e;
+  --text: #e6edf3;
+  --text-mid: #8b949e;
+  --text-soft: #8b949e;
+  --text-muted: #484f58;
 
   /* ── Danger ── */
   --danger: #ef5350;
   --danger-soft: rgba(239,83,80,.12);
+  --warning: #ffb74d;
 
   /* ── Type ── */
   --font-body: "PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
@@ -45,6 +47,29 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+
+  /* ── Spec-aligned aliases (ui-spec.md §1) ── */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-elevated);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-pending: var(--pending);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-text: var(--text);
+  --color-text-soft: var(--text-mid);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+
+  /* ── Spacing scale (ui-spec.md §1.2) ── */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
 }
 
 html { font-size: 16px; -webkit-font-smoothing: antialiased; }
@@ -294,6 +319,19 @@ body::before {
   font-size: 12px;
   color: var(--text-soft);
   line-height: 1;
+}
+
+.nav-back-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 10px 0 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 /* ═══════════════════════════════════════
@@ -1175,8 +1213,8 @@ body::before {
    Add Item Page
    ═══════════════════════════════════════ */
 .emoji-pick {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-sm);
   background: rgba(255,255,255,.04);
   border: 1px solid var(--border);
@@ -1551,8 +1589,11 @@ body::before {
       <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
       <div class="page active">
         <div class="page-header">
-          <h1>添加事项</h1>
-          <div class="date-sub">自定义你的确认清单</div>
+          <button class="nav-back-btn" onclick="goBack()" aria-label="返回">←</button>
+          <div>
+            <h1>添加事项</h1>
+            <div class="date-sub">自定义你的确认清单</div>
+          </div>
         </div>
 
         <div class="confirm-panel" style="padding-top:16px">
@@ -1568,7 +1609,7 @@ body::before {
 
             <div style="margin-bottom:24px">
               <label class="form-label">图标（可选）</label>
-              <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
                 <div class="emoji-pick" onclick="pickEmoji(this)">🚲</div>
                 <div class="emoji-pick" onclick="pickEmoji(this)">🔥</div>
                 <div class="emoji-pick" onclick="pickEmoji(this)">🚪</div>
@@ -1581,11 +1622,14 @@ body::before {
                 <div class="emoji-pick" onclick="pickEmoji(this)">📋</div>
                 <div class="emoji-pick" onclick="pickEmoji(this)">🏠</div>
                 <div class="emoji-pick" onclick="pickEmoji(this)">📝</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">⏰</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🛡️</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🏋️</div>
               </div>
             </div>
 
             <div style="margin-bottom:20px">
-              <label class="form-label">每日次数</label>
+              <label class="form-label">每日次数 <span style="font-size:10px;color:var(--text-muted);background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;vertical-align:middle">Post-MVP</span></label>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <div class="freq-chip selected" onclick="selectFreq(this)">1次</div>
                 <div class="freq-chip" onclick="selectFreq(this)">2次</div>
@@ -1997,7 +2041,7 @@ function saveNewItem() {
   if (errEl) errEl.style.display = 'none';
 
   var selectedEmoji = dev2.querySelector('.emoji-pick.selected');
-  var emoji = selectedEmoji ? selectedEmoji.textContent : '📌';
+  var emoji = selectedEmoji ? selectedEmoji.textContent.trim() : (name.charAt(0) || '📌');
   var panel = document.getElementById('confirm-list');
   var addItem = panel.querySelector('.add-item');
   var existing = panel.querySelectorAll('.confirm-item');
