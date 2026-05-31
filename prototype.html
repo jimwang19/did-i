@@ -1217,7 +1217,10 @@ body::before {
   transition: border-color .15s ease;
 }
 .form-input:focus { border-color: var(--accent); }
+.form-input.error { border-color: var(--danger); box-shadow: 0 0 0 2px rgba(239,83,80,0.15); }
 .form-input::placeholder { color: var(--text-soft); }
+.form-error { color: var(--danger); font-size: 12px; margin-top: 4px; display: none; }
+.name-char-count { font-size: 11px; color: var(--text-soft); }
 
 .form-label {
   font-size: 13px;
@@ -1556,7 +1559,11 @@ body::before {
           <div style="padding:0 16px">
             <div style="margin-bottom:20px">
               <label class="form-label">名称 <span style="color:var(--danger)">*</span></label>
-              <input type="text" class="form-input" placeholder="例如：锁门、关窗、喂猫...">
+              <input type="text" class="form-input" placeholder="例如：锁门、关窗、喂猫..." maxlength="10" oninput="updateNameInput(this)">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+                <span class="form-error" id="name-error">请输入事项名称</span>
+                <span class="name-char-count" id="name-char-count">0/10</span>
+              </div>
             </div>
 
             <div style="margin-bottom:24px">
@@ -1658,6 +1665,13 @@ function addEntry(btn, emoji, name) {
   const panel = document.getElementById('confirm-list');
   const addItem = panel.querySelector('.add-item');
   const existing = panel.querySelectorAll('.confirm-item');
+
+  // 事项上限校验
+  if (existing.length >= 10) {
+    showLimitToast('免费版最多 10 个事项');
+    return;
+  }
+
   let maxSeq = 0;
   existing.forEach(function(item) {
     const badge = item.querySelector('.seq-badge');
@@ -1671,15 +1685,15 @@ function addEntry(btn, emoji, name) {
   newItem.className = 'confirm-item pending';
   newItem.onclick = function() { selectEntry(this); };
   newItem.innerHTML =
-    '<div class="icon">' + emoji + '</div>' +
+    '<div class="icon">' + escHtml(emoji) + '</div>' +
     '<div class="info">' +
-      '<div class="name">' + name + '<span class="seq-badge">' + seq + '</span></div>' +
+      '<div class="name">' + escHtml(name) + '<span class="seq-badge">' + seq + '</span></div>' +
       '<div class="meta"><span class="status-badge">⏳ 待确认</span></div>' +
     '</div>' +
     '<div class="actions">' +
       '<div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>' +
-      '<div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest(\'confirm-item\'))">✓</div>' +
-      '<div class="add-btn" onclick="event.stopPropagation(); addEntry(this, \'' + emoji + '\', \'' + name + '\')">+</div>' +
+      '<div class="check-btn" onclick="event.stopPropagation(); toggleConfirm(this.closest(\'.confirm-item\'))">✓</div>' +
+      '<div class="add-btn" data-emoji="' + escHtml(emoji) + '" data-name="' + escHtml(name) + '" onclick="event.stopPropagation(); addEntry(this, this.dataset.emoji, this.dataset.name)">+</div>' +
     '</div>';
   newItem.style.opacity = '0';
   newItem.style.transform = 'translateY(-8px)';
@@ -1953,6 +1967,11 @@ function showAddItem() {
   var input = dev2.querySelector('.form-input');
   // 清空表单
   input.value = '';
+  input.classList.remove('error');
+  var err = document.getElementById('name-error');
+  if (err) err.style.display = 'none';
+  var charCount = document.getElementById('name-char-count');
+  if (charCount) charCount.textContent = '0/10';
   dev2.querySelectorAll('.emoji-pick').forEach(function(p) { p.classList.remove('selected'); });
   dev2.querySelectorAll('.freq-chip').forEach(function(c) { c.classList.remove('selected'); });
   dev2.querySelector('.freq-chip').classList.add('selected'); // 默认1次
@@ -1962,13 +1981,33 @@ function showAddItem() {
 
 function saveNewItem() {
   var dev2 = document.getElementById('device-2');
-  var name = dev2.querySelector('.form-input').value.trim();
-  if (!name) { dev2.querySelector('.form-input').focus(); return; }
+  var input = dev2.querySelector('.form-input');
+  var name = input.value.trim();
+
+  // 空名称校验：红边框 + inline error
+  if (!name) {
+    input.classList.add('error');
+    input.focus();
+    var err = document.getElementById('name-error');
+    if (err) err.style.display = 'block';
+    return;
+  }
+  input.classList.remove('error');
+  var errEl = document.getElementById('name-error');
+  if (errEl) errEl.style.display = 'none';
+
   var selectedEmoji = dev2.querySelector('.emoji-pick.selected');
   var emoji = selectedEmoji ? selectedEmoji.textContent : '📌';
   var panel = document.getElementById('confirm-list');
   var addItem = panel.querySelector('.add-item');
   var existing = panel.querySelectorAll('.confirm-item');
+
+  // 事项上限校验
+  if (existing.length >= 10) {
+    showLimitToast('免费版最多 10 个事项');
+    return;
+  }
+
   var maxSeq = 0;
   existing.forEach(function(item) {
     var badge = item.querySelector('.seq-badge');
@@ -1982,15 +2021,15 @@ function saveNewItem() {
   newItem.className = 'confirm-item pending';
   newItem.onclick = function() { selectEntry(this); };
   newItem.innerHTML =
-    '<div class="icon">' + emoji + '</div>' +
+    '<div class="icon">' + escHtml(emoji) + '</div>' +
     '<div class="info">' +
-      '<div class="name">' + name + '<span class="seq-badge">' + seq + '</span></div>' +
+      '<div class="name">' + escHtml(name) + '<span class="seq-badge">' + seq + '</span></div>' +
       '<div class="meta"><span class="status-badge">⏳ 待确认</span></div>' +
     '</div>' +
     '<div class="actions">' +
       '<div class="delete-btn" onclick="event.stopPropagation(); deleteEntry(this)">x</div>' +
       '<div class="check-btn" data-tooltip="直接确认" onclick="event.stopPropagation(); toggleConfirm(this.closest(\'.confirm-item\'))">✓</div>' +
-      '<div class="add-btn" onclick="event.stopPropagation(); addEntry(this, \'' + emoji + '\', \'' + name + '\')">+</div>' +
+      '<div class="add-btn" data-emoji="' + escHtml(emoji) + '" data-name="' + escHtml(name) + '" onclick="event.stopPropagation(); addEntry(this, this.dataset.emoji, this.dataset.name)">+</div>' +
     '</div>';
   newItem.style.opacity = '0';
   newItem.style.transform = 'translateY(-8px)';
@@ -2006,6 +2045,30 @@ function saveNewItem() {
 
 function goBack() {
   document.getElementById('device-1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ─── 表单辅助 ───
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function updateNameInput(input) {
+  var count = document.getElementById('name-char-count');
+  if (count) count.textContent = input.value.length + '/10';
+  if (input.value.trim()) {
+    input.classList.remove('error');
+    var err = document.getElementById('name-error');
+    if (err) err.style.display = 'none';
+  }
+}
+function showLimitToast(msg) {
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:var(--surface);color:var(--text);padding:10px 20px;border-radius:var(--radius-full);font-size:13px;z-index:9999;pointer-events:none;border:1px solid var(--accent);opacity:1;transition:opacity .3s ease;white-space:nowrap';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    setTimeout(function() { document.body.removeChild(toast); }, 300);
+  }, 2200);
 }
 
 // ═══ Filter ═══
