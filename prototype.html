@@ -1244,7 +1244,8 @@ body::before {
 
 .form-input {
   width: 100%;
-  padding: 12px 14px;
+  height: 44px;
+  padding: 0 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-strong);
   background: var(--surface);
@@ -2088,7 +2089,23 @@ function saveNewItem() {
 }
 
 function goBack() {
-  document.getElementById('device-1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  var page = document.querySelector('#device-2 .page');
+  if (page) {
+    page.style.transition = 'transform .22s ease, opacity .22s ease';
+    page.style.transform = 'translateX(40px)';
+    page.style.opacity = '0';
+    setTimeout(function() {
+      document.getElementById('device-1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(function() {
+        page.style.transition = 'none';
+        page.style.transform = '';
+        page.style.opacity = '';
+        setTimeout(function() { page.style.transition = ''; }, 50);
+      }, 500);
+    }, 220);
+  } else {
+    document.getElementById('device-1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 }
 
 // ─── 表单辅助 ───
