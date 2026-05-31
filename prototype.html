@@ -99,8 +99,8 @@ body::before {
    ═══════════════════════════════════════ */
 .annotation-toggle {
   position: fixed;
-  top: 16px;
-  right: 16px;
+  bottom: 20px;
+  right: 20px;
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -982,6 +982,23 @@ body::before {
    ═══════════════════════════════════════ */
 .page { display: none; flex-direction: column; flex: 1; }
 .page.active { display: flex; }
+/* in-device slide-in overlay for 添加事项 */
+.page-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  transform: translateX(100%);
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+  overflow: hidden;
+}
+.page-overlay.active {
+  transform: translateX(0);
+  pointer-events: all;
+}
 
 /* ═══════════════════════════════════════
    Empty state
@@ -1514,6 +1531,67 @@ body::before {
         </div>
       </div>
 
+      <!-- 添加事项页面 — 从右侧滑入覆盖在 device-1 内 -->
+      <div class="page-overlay" id="page-add-item">
+        <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="page-header">
+          <button class="nav-back-btn" onclick="closeAddItem()" aria-label="返回">←</button>
+          <div>
+            <h1>添加事项</h1>
+            <div class="date-sub">自定义你的确认清单</div>
+          </div>
+        </div>
+
+        <div class="confirm-panel" style="padding-top:16px">
+          <div style="padding:0 16px">
+            <div style="margin-bottom:20px">
+              <label class="form-label">名称 <span style="color:var(--danger)">*</span></label>
+              <input type="text" class="form-input" placeholder="例如：锁门、关窗、喂猫..." maxlength="10" oninput="updateNameInput(this)">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+                <span class="form-error" id="add-item-name-error">请输入事项名称</span>
+                <span class="name-char-count" id="add-item-char-count">0/10</span>
+              </div>
+            </div>
+
+            <div style="margin-bottom:24px">
+              <label class="form-label">图标（可选）</label>
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+                <div class="emoji-pick" onclick="pickEmoji(this)">🚲</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🔥</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🚪</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🐱</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🐶</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">💡</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">📦</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🔒</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">💧</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">📋</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🏠</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">📝</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">⏰</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🛡️</div>
+                <div class="emoji-pick" onclick="pickEmoji(this)">🏋️</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:20px">
+              <label class="form-label">每日次数 <span style="font-size:10px;color:var(--text-muted);background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;vertical-align:middle">Post-MVP</span></label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <div class="freq-chip selected" onclick="selectFreq(this)">1次</div>
+                <div class="freq-chip" onclick="selectFreq(this)">2次</div>
+                <div class="freq-chip" onclick="selectFreq(this)">3次</div>
+                <div class="freq-chip" onclick="selectFreq(this)">自定义</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <button class="btn btn-secondary" onclick="closeAddItem()">取消</button>
+          <button class="btn btn-primary" onclick="saveNewItem()">保存</button>
+        </div>
+      </div>
+
       <!-- Detail Sheet Overlay — 确认记录详情 -->
       <div class="detail-sheet-overlay" id="detail-overlay" onclick="closeDetail(event)">
         <div class="detail-sheet" onclick="event.stopPropagation()">
@@ -2008,40 +2086,43 @@ function closeDetailSheet() {
 }
 
 function showAddItem() {
-  var dev2 = document.getElementById('device-2');
-  var input = dev2.querySelector('.form-input');
+  var page = document.getElementById('page-add-item');
+  var input = page.querySelector('.form-input');
   // 清空表单
   input.value = '';
   input.classList.remove('error');
-  var err = document.getElementById('name-error');
+  var err = document.getElementById('add-item-name-error');
   if (err) err.style.display = 'none';
-  var charCount = document.getElementById('name-char-count');
+  var charCount = document.getElementById('add-item-char-count');
   if (charCount) charCount.textContent = '0/10';
-  dev2.querySelectorAll('.emoji-pick').forEach(function(p) { p.classList.remove('selected'); });
-  dev2.querySelectorAll('.freq-chip').forEach(function(c) { c.classList.remove('selected'); });
-  dev2.querySelector('.freq-chip').classList.add('selected'); // 默认1次
-  dev2.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  setTimeout(function() { input.focus(); }, 400);
+  page.querySelectorAll('.emoji-pick').forEach(function(p) { p.classList.remove('selected'); });
+  page.querySelectorAll('.freq-chip').forEach(function(c) { c.classList.remove('selected'); });
+  page.querySelector('.freq-chip').classList.add('selected'); // 默认1次
+  page.classList.add('active');
+  setTimeout(function() { input.focus(); }, 280);
+}
+function closeAddItem() {
+  document.getElementById('page-add-item').classList.remove('active');
 }
 
 function saveNewItem() {
-  var dev2 = document.getElementById('device-2');
-  var input = dev2.querySelector('.form-input');
+  var page = document.getElementById('page-add-item');
+  var input = page.querySelector('.form-input');
   var name = input.value.trim();
 
   // 空名称校验：红边框 + inline error
   if (!name) {
     input.classList.add('error');
     input.focus();
-    var err = document.getElementById('name-error');
+    var err = document.getElementById('add-item-name-error');
     if (err) err.style.display = 'block';
     return;
   }
   input.classList.remove('error');
-  var errEl = document.getElementById('name-error');
+  var errEl = document.getElementById('add-item-name-error');
   if (errEl) errEl.style.display = 'none';
 
-  var selectedEmoji = dev2.querySelector('.emoji-pick.selected');
+  var selectedEmoji = page.querySelector('.emoji-pick.selected');
   var emoji = selectedEmoji ? selectedEmoji.textContent.trim() : (name.charAt(0) || '📌');
   var panel = document.getElementById('confirm-list');
   var addItem = panel.querySelector('.add-item');
@@ -2084,8 +2165,9 @@ function saveNewItem() {
     newItem.style.opacity = '1';
     newItem.style.transform = 'translateY(0)';
   });
-  updatePendingCount();
-  goBack();
+  applyFilter();
+  sortConfirmList();
+  closeAddItem();
 }
 
 function goBack() {
@@ -2113,11 +2195,13 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function updateNameInput(input) {
-  var count = document.getElementById('name-char-count');
+  // Use parent-relative lookup so this works for both device-2 and #page-add-item
+  var wrapper = input.parentElement;
+  var count = wrapper.querySelector('.name-char-count');
   if (count) count.textContent = input.value.length + '/10';
   if (input.value.trim()) {
     input.classList.remove('error');
-    var err = document.getElementById('name-error');
+    var err = wrapper.querySelector('.form-error');
     if (err) err.style.display = 'none';
   }
 }
