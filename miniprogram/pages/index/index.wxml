@@ -35,7 +35,10 @@
     >
       <view class="item-icon">{{item.icon}}</view>
       <view class="info">
-        <view class="name">{{item.name}}</view>
+        <view class="name-row">
+          <text class="name">{{item.name}}</text>
+          <text class="serial-badge" wx:if="{{item.showSerialBadge}}">#{{item.serialNo}}</text>
+        </view>
         <view class="meta">
           <text class="status-badge" wx:if="{{item.confirmed}}">✅ 已确认</text>
           <text class="status-badge pending-badge" wx:else>⏳ 待确认</text>
@@ -45,7 +48,10 @@
       </view>
       <view class="actions">
         <view wx:if="{{editMode}}" class="delete-action-btn" data-id="{{item.id}}" catchtap="onDeleteItem">×</view>
-        <view wx:else class="check-btn {{item.confirmed ? 'confirmed' : ''}}" data-id="{{item.id}}" catchtap="onCheckTap">✓</view>
+        <block wx:else>
+          <view class="add-entry-btn" data-name="{{item.name}}" data-icon="{{item.icon}}" catchtap="onAddEntry">+</view>
+          <view class="check-btn {{item.confirmed ? 'confirmed' : ''}}" data-id="{{item.id}}" catchtap="onCheckTap">✓</view>
+        </block>
       </view>
     </view>
 
@@ -62,16 +68,24 @@
   <!-- 底部操作栏 (fixed) -->
   <view class="bottom-bar">
     <view class="btn btn-primary {{selectedItemId ? '' : 'disabled'}}" bindtap="onPhotoConfirm">
-      📷 拍照确认
+      {{selectedItemId ? ('📷 拍照确认「' + selectedItemName + '」') : '📷 拍照确认'}}
     </view>
     <view class="btn btn-secondary {{selectedItemId ? '' : 'disabled'}}" bindtap="onQuickConfirm">
-      ✓ 快速确认
+      {{selectedItemId ? ('✓ 快速确认「' + selectedItemName + '」') : '✓ 快速确认'}}
     </view>
   </view>
 
   <!-- 选择提示 -->
   <view class="selected-hint {{selectedItemId ? 'active' : ''}}">
-    <text>{{selectedItemId ? '已选择事项，点击按钮确认' : '点选任意事项，底部按钮确认该项'}}</text>
+    <text>{{selectedItemId ? ('选中「' + selectedItemName + '」→ 底部按钮确认') : '点选待确认事项，底部按钮确认该项'}}</text>
   </view>
   <!-- 确认详情 Sheet -->
-  <detail-sheet visible="{{detailVisible}}" detail="{{detailData}}" bind:close="onDetailClose"></detail-sheet></view>
+  <detail-sheet visible="{{detailVisible}}" detail="{{detailData}}" bind:close="onDetailClose"></detail-sheet>
+
+  <!-- 添加新事项 弹层 -->
+  <item-editor
+    visible="{{editorVisible}}"
+    editItem="{{null}}"
+    bind:confirm="onEditorConfirm"
+    bind:close="onEditorClose"
+  ></item-editor></view>

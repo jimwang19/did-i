@@ -2,6 +2,7 @@
   "navigationStyle": "custom",
   "navigationBarTitleText": "",
   "usingComponents": {
-    "detail-sheet": "/components/detail-sheet/detail-sheet"
+    "detail-sheet": "/components/detail-sheet/detail-sheet",
+    "item-editor": "/components/item-editor/item-editor"
   }
 }

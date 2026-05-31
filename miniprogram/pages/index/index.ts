@@ -7,12 +7,14 @@ Page({
     displayItems: [],
     todayDisplay: '',
     selectedItemId: '',
+    selectedItemName: '',
     hideConfirmed: false,
     pendingCount: 0,
     statusBarHeight: 0,
     detailVisible: false,
     detailData: null as any,
     editMode: false,
+    editorVisible: false,
   },
 
   onLoad() {
@@ -38,14 +40,33 @@ Page({
     const items = get('memo_items', []);
     const today = todayStr();
     const confirmations = get('memo_confirmations', []);
+    const orderedItems = [...items].sort((a, b) => a.sortOrder - b.sortOrder);
+    const totalByName = {};
+    const serialById = {};
+
+    orderedItems.forEach(item => {
+      totalByName[item.name] = (totalByName[item.name] || 0) + 1;
+    });
+
+    const currentByName = {};
+    orderedItems.forEach(item => {
+      currentByName[item.name] = (currentByName[item.name] || 0) + 1;
+      serialById[item.id] = currentByName[item.name];
+    });
 
     return items.map(item => {
       const todayConf = confirmations
         .filter(c => c.itemId === item.id && c.date === today)
         .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
       const latest = todayConf[0] || null;
+      const serialNo = serialById[item.id] || 1;
+      const showSerialBadge = (totalByName[item.name] || 0) > 1;
+      const displayName = showSerialBadge ? `${item.name} #${serialNo}` : item.name;
       return {
         ...item,
+        serialNo,
+        showSerialBadge,
+        displayName,
         confirmed: !!latest,
         confirmTimeShort: latest ? latest.timestamp.slice(0, 5) : '',
         confirmMethod: latest ? latest.method : '',
@@ -68,8 +89,15 @@ Page({
     const d = new Date();
     const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
     const todayDisplay = `${d.getMonth() + 1}月${d.getDate()}日 周${weekDays[d.getDay()]}`;
+    const selected = displayItems.find(i => i.id === this.data.selectedItemId);
 
-    this.setData({ displayItems: filtered, todayDisplay, pendingCount });
+    this.setData({
+      displayItems: filtered,
+      todayDisplay,
+      pendingCount,
+      selectedItemId: selected ? this.data.selectedItemId : '',
+      selectedItemName: selected ? selected.displayName : '',
+    });
   },
 
   toggleFilter() {
@@ -78,8 +106,14 @@ Page({
     const filtered = hideConfirmed
       ? displayItems.filter(i => !i.confirmed)
       : displayItems;
+    const selected = displayItems.find(i => i.id === this.data.selectedItemId);
 
-    this.setData({ hideConfirmed, displayItems: filtered });
+    this.setData({
+      hideConfirmed,
+      displayItems: filtered,
+      selectedItemId: selected ? this.data.selectedItemId : '',
+      selectedItemName: selected ? selected.displayName : '',
+    });
   },
 
   onItemTap(e) {
@@ -102,7 +136,11 @@ Page({
       return;
     }
 
-    this.setData({ selectedItemId: this.data.selectedItemId === id ? '' : id });
+    const isSame = this.data.selectedItemId === id;
+    this.setData({
+      selectedItemId: isSame ? '' : id,
+      selectedItemName: isSame ? '' : (item.displayName || item.name || ''),
+    });
   },
 
   onCheckTap(e) {
@@ -123,7 +161,7 @@ Page({
   },
 
   onToggleEditMode() {
-    this.setData({ editMode: !this.data.editMode, selectedItemId: '' });
+    this.setData({ editMode: !this.data.editMode, selectedItemId: '', selectedItemName: '' });
   },
 
   onDeleteItem(e) {
@@ -131,7 +169,7 @@ Page({
     const item = this.data.displayItems.find(i => i.id === id);
     wx.showModal({
       title: '删除事项',
-      content: `确认删除“${item?.name || ''}”？历史记录保留。`,
+      content: `确认删除“${item?.displayName || item?.name || ''}”？历史记录保留。`,
       success: (res) => {
         if (!res.confirm) return;
         const items = get('memo_items', []).filter(i => i.id !== id);
@@ -144,28 +182,54 @@ Page({
   onAddItem() {
     const items = get('memo_items', []);
     if (items.length >= ITEM_MAX_COUNT) {
-      wx.showToast({ title: `最多 ${ITEM_MAX_COUNT} 个事项`, icon: 'none' });
+      wx.showToast({ title: `免费版最多 ${ITEM_MAX_COUNT} 个事项`, icon: 'none' });
       return;
     }
+    this.setData({ editorVisible: true });
+  },
 
-    wx.showModal({
-      title: '添加事项',
-      editable: true,
-      placeholderText: '输入事项名称',
-      success: (res) => {
-        if (!res.confirm || !res.content?.trim()) return;
-        const newItem = {
-          id: `item_${Date.now()}`,
-          name: res.content.trim().slice(0, 10),
-          icon: '📌',
-          sortOrder: items.length,
-          createdAt: new Date().toISOString(),
-        };
-        items.push(newItem);
-        saveItems(items);
-        this.loadData();
-      },
+  onEditorConfirm(e: any) {
+    const { name, icon } = e.detail;
+    const items = get('memo_items', []);
+    if (items.length >= ITEM_MAX_COUNT) {
+      wx.showToast({ title: `免费版最多 ${ITEM_MAX_COUNT} 个事项`, icon: 'none' });
+      this.setData({ editorVisible: false });
+      return;
+    }
+    items.push({
+      id: `item_${Date.now()}`,
+      name: name.slice(0, 10),
+      icon,
+      sortOrder: items.length,
+      createdAt: new Date().toISOString(),
     });
+    saveItems(items);
+    this.setData({ editorVisible: false });
+    this.loadData();
+  },
+
+  onEditorClose() {
+    this.setData({ editorVisible: false });
+  },
+
+  onAddEntry(e) {
+    // 点击事项行右侧 + 按鈕，新增同类型待确认槽位（方案b: 复制 item）
+    const { name, icon } = e.currentTarget.dataset;
+    const items = get('memo_items', []);
+    if (items.length >= ITEM_MAX_COUNT) {
+      wx.showToast({ title: `免费版最多 ${ITEM_MAX_COUNT} 个事项`, icon: 'none' });
+      return;
+    }
+    // 计算同名事项已有多少个（仅用于 sortOrder，序号由 loadData 中 showSerialBadge 逻辑处理）
+    items.push({
+      id: `item_${Date.now()}`,
+      name,
+      icon,
+      sortOrder: items.length,
+      createdAt: new Date().toISOString(),
+    });
+    saveItems(items);
+    this.loadData();
   },
 
   onPhotoConfirm() {
@@ -227,7 +291,7 @@ Page({
     settings.lastOpenDate = todayStr();
     saveSettings(settings);
 
-    this.setData({ selectedItemId: '' });
+    this.setData({ selectedItemId: '', selectedItemName: '' });
     this.loadData();
     wx.showToast({ title: '已确认', icon: 'success' });
   },
