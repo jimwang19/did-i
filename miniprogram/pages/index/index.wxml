@@ -3,7 +3,7 @@
   <view class="status-bar-placeholder" style="height: {{statusBarHeight}}px;"></view>
 
   <!-- 顶部 Header -->
-  <view class="page-header">
+  <view class="page-header" style="padding-right: {{headerPaddingRight}}px;">
     <view class="header-left">
       <text class="header-title">今日</text>
       <text class="date-sub">{{todayDisplay}}</text>

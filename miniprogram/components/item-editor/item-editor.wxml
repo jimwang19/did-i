@@ -14,6 +14,8 @@
         maxlength="{{maxLen}}"
         bindinput="onNameInput"
         confirm-type="done"
+        adjust-position="{{true}}"
+        cursor-spacing="120"
       />
       <text class="char-count">{{name.length}}/{{maxLen}}</text>
     </view>

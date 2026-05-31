@@ -11,6 +11,7 @@ Page({
     hideConfirmed: false,
     pendingCount: 0,
     statusBarHeight: 0,
+    headerPaddingRight: 20,
     detailVisible: false,
     detailData: null as any,
     editMode: false,
@@ -23,6 +24,13 @@ Page({
       this.setData({ statusBarHeight: sysInfo.statusBarHeight });
     } catch {
       this.setData({ statusBarHeight: 44 });
+    }
+    try {
+      const capsule = wx.getMenuButtonBoundingClientRect();
+      const windowWidth = wx.getWindowInfo().windowWidth;
+      this.setData({ headerPaddingRight: windowWidth - capsule.left + 8 });
+    } catch {
+      this.setData({ headerPaddingRight: 100 });
     }
     const settings = get(STORAGE_KEYS.SETTINGS, { hasSeenOnboarding: false, lastOpenDate: '' });
     if (!settings.hasSeenOnboarding) {

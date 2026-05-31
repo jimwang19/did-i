@@ -36,7 +36,10 @@ Component({
 
     onConfirm() {
       const name = this.data.name.trim();
-      if (!name) return;
+      if (!name) {
+        wx.showToast({ title: '请输入事项名称', icon: 'none' });
+        return;
+      }
       this.triggerEvent('confirm', { name, icon: this.data.selectedIcon });
     },
 
