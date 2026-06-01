@@ -5,6 +5,7 @@ import { ITEM_MAX_COUNT, STORAGE_KEYS } from '../../utils/constants';
 Page({
   data: {
     displayItems: [],
+    todayDisplay: '',
     hideConfirmed: false,
     pendingCount: 0,
     pagePaddingTop: 0,
@@ -86,9 +87,13 @@ Page({
 
     const selected = displayItems.find(i => i.id === this.data.selectedItemId);
 
+    const d = new Date();
+    const todayDisplay = `${d.getMonth() + 1}月${d.getDate()}日`;
+
     this.setData({
       displayItems: filtered,
       pendingCount,
+      todayDisplay,
       selectedItemId: selected ? this.data.selectedItemId : '',
       selectedItemName: selected ? selected.displayName : '',
     });

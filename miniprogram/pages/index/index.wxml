@@ -1,4 +1,12 @@
 <view class="page" style="padding-top: {{pagePaddingTop}}px;">
+  <!-- 页面 Header -->
+  <view class="page-header">
+    <view class="header-left">
+      <text class="header-title">今日</text>
+      <text class="date-sub">{{todayDisplay}}</text>
+    </view>
+  </view>
+
   <!-- 筛选栏 -->
   <view class="filter-bar">
     <view class="filter-chip {{hideConfirmed ? 'active' : ''}}" bindtap="toggleFilter">
