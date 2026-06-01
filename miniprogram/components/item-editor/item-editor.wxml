@@ -1,5 +1,5 @@
 <view class="mask {{visible ? 'visible' : ''}}" bindtap="onMaskTap">
-  <view class="sheet {{visible ? 'visible' : ''}}" catchtap="">
+  <view class="sheet {{visible ? 'visible' : ''}}" catchtap="onSheetTap">
     <view class="handle"></view>
 
     <view class="sheet-title">{{editItem ? '编辑事项' : '添加事项'}}</view>

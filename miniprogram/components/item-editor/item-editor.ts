@@ -47,8 +47,14 @@ Component({
       this.triggerEvent('close');
     },
 
-    onMaskTap() {
-      this.triggerEvent('close');
+    onMaskTap(e: any) {
+      if (e.target === e.currentTarget) {
+        this.triggerEvent('close');
+      }
+    },
+
+    onSheetTap() {
+      // prevent bubbling to mask
     },
   },
 });

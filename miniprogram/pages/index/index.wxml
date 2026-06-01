@@ -1,18 +1,4 @@
 <view class="page">
-  <!-- 状态栏占位 -->
-  <view class="status-bar-placeholder" style="height: {{statusBarHeight}}px;"></view>
-
-  <!-- 顶部 Header -->
-  <view class="page-header" style="padding-right: {{headerPaddingRight}}px;">
-    <view class="header-left">
-      <text class="header-title">今日</text>
-      <text class="date-sub">{{todayDisplay}}</text>
-    </view>
-    <view class="edit-toggle {{editMode ? 'active' : ''}}" bindtap="onToggleEditMode">
-      {{editMode ? '完成' : '编辑'}}
-    </view>
-  </view>
-
   <!-- 筛选栏 -->
   <view class="filter-bar">
     <view class="filter-chip {{hideConfirmed ? 'active' : ''}}" bindtap="toggleFilter">
@@ -21,6 +7,9 @@
     </view>
     <view class="filter-right">
       <text class="filter-count">{{pendingCount}} 项待确认</text>
+      <view class="edit-toggle {{editMode ? 'active' : ''}}" bindtap="onToggleEditMode">
+        {{editMode ? '完成' : '编辑'}}
+      </view>
     </view>
   </view>
 
@@ -85,7 +74,7 @@
   <!-- 添加新事项 弹层 -->
   <item-editor
     visible="{{editorVisible}}"
-    editItem="{{null}}"
+    editItem="{{editingItem}}"
     bind:confirm="onEditorConfirm"
     bind:close="onEditorClose"
   ></item-editor></view>

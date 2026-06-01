@@ -4,37 +4,6 @@
   padding-bottom: 170px;
 }
 
-.status-bar-placeholder {
-  background: var(--color-bg);
-}
-
-/* ========== Header ========== */
-.page-header {
-  padding: 8px 20px 4px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--color-surface);
-}
-
-.header-left {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-
-.header-title {
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--color-text);
-  letter-spacing: -0.02em;
-}
-
-.date-sub {
-  font-size: 12px;
-  color: var(--color-text-mid);
-}
-
 /* ========== Filter Bar ========== */
 .filter-bar {
   display: flex;

@@ -5,33 +5,16 @@ import { ITEM_MAX_COUNT, STORAGE_KEYS } from '../../utils/constants';
 Page({
   data: {
     displayItems: [],
-    todayDisplay: '',
-    selectedItemId: '',
-    selectedItemName: '',
     hideConfirmed: false,
     pendingCount: 0,
-    statusBarHeight: 0,
-    headerPaddingRight: 20,
     detailVisible: false,
     detailData: null as any,
     editMode: false,
     editorVisible: false,
+    editingItem: null as any,
   },
 
   onLoad() {
-    try {
-      const sysInfo = wx.getWindowInfo();
-      this.setData({ statusBarHeight: sysInfo.statusBarHeight });
-    } catch {
-      this.setData({ statusBarHeight: 44 });
-    }
-    try {
-      const capsule = wx.getMenuButtonBoundingClientRect();
-      const windowWidth = wx.getWindowInfo().windowWidth;
-      this.setData({ headerPaddingRight: windowWidth - capsule.left + 8 });
-    } catch {
-      this.setData({ headerPaddingRight: 100 });
-    }
     const settings = get(STORAGE_KEYS.SETTINGS, { hasSeenOnboarding: false, lastOpenDate: '' });
     if (!settings.hasSeenOnboarding) {
       wx.navigateTo({ url: '/pages/onboarding/onboarding' });
@@ -94,14 +77,10 @@ Page({
       ? displayItems.filter(i => !i.confirmed)
       : displayItems;
 
-    const d = new Date();
-    const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
-    const todayDisplay = `${d.getMonth() + 1}月${d.getDate()}日 周${weekDays[d.getDay()]}`;
     const selected = displayItems.find(i => i.id === this.data.selectedItemId);
 
     this.setData({
       displayItems: filtered,
-      todayDisplay,
       pendingCount,
       selectedItemId: selected ? this.data.selectedItemId : '',
       selectedItemName: selected ? selected.displayName : '',
@@ -128,6 +107,11 @@ Page({
     const { id } = e.currentTarget.dataset;
     const item = this.data.displayItems.find(i => i.id === id);
     if (!item) return;
+
+    // 编辑模式下点击事项行不做任何操作（仅通过删除按钮删除）
+    if (this.data.editMode) {
+      return;
+    }
 
     if (item.confirmed) {
       this.setData({
@@ -193,31 +177,43 @@ Page({
       wx.showToast({ title: `免费版最多 ${ITEM_MAX_COUNT} 个事项`, icon: 'none' });
       return;
     }
-    this.setData({ editorVisible: true });
+    this.setData({ editorVisible: true, editingItem: null });
   },
 
   onEditorConfirm(e: any) {
     const { name, icon } = e.detail;
     const items = get('memo_items', []);
-    if (items.length >= ITEM_MAX_COUNT) {
-      wx.showToast({ title: `免费版最多 ${ITEM_MAX_COUNT} 个事项`, icon: 'none' });
-      this.setData({ editorVisible: false });
-      return;
+    const editing = this.data.editingItem;
+
+    if (editing) {
+      const idx = items.findIndex((i: any) => i.id === editing.id);
+      if (idx >= 0) {
+        items[idx].name = name.slice(0, 10);
+        items[idx].icon = icon;
+        saveItems(items);
+      }
+    } else {
+      if (items.length >= ITEM_MAX_COUNT) {
+        wx.showToast({ title: `免费版最多 ${ITEM_MAX_COUNT} 个事项`, icon: 'none' });
+        this.setData({ editorVisible: false });
+        return;
+      }
+      items.push({
+        id: `item_${Date.now()}`,
+        name: name.slice(0, 10),
+        icon,
+        sortOrder: items.length,
+        createdAt: new Date().toISOString(),
+      });
+      saveItems(items);
     }
-    items.push({
-      id: `item_${Date.now()}`,
-      name: name.slice(0, 10),
-      icon,
-      sortOrder: items.length,
-      createdAt: new Date().toISOString(),
-    });
-    saveItems(items);
-    this.setData({ editorVisible: false });
+
+    this.setData({ editorVisible: false, editingItem: null });
     this.loadData();
   },
 
   onEditorClose() {
-    this.setData({ editorVisible: false });
+    this.setData({ editorVisible: false, editingItem: null });
   },
 
   onAddEntry(e) {
