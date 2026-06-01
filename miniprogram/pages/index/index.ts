@@ -7,6 +7,7 @@ Page({
     displayItems: [],
     hideConfirmed: false,
     pendingCount: 0,
+    pagePaddingTop: 0,
     detailVisible: false,
     detailData: null as any,
     editMode: false,
@@ -15,6 +16,12 @@ Page({
   },
 
   onLoad() {
+    try {
+      const capsule = wx.getMenuButtonBoundingClientRect();
+      this.setData({ pagePaddingTop: capsule.bottom + 4 });
+    } catch {
+      this.setData({ pagePaddingTop: 95 });
+    }
     const settings = get(STORAGE_KEYS.SETTINGS, { hasSeenOnboarding: false, lastOpenDate: '' });
     if (!settings.hasSeenOnboarding) {
       wx.navigateTo({ url: '/pages/onboarding/onboarding' });
